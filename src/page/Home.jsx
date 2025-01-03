@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { createNewLocation } from '../supabase'
+import { useAuth } from '../Context'
 
 const Home = () => {
 
@@ -7,6 +8,7 @@ const Home = () => {
     const lastPositionRef = useRef(null)
     const watchIdRef = useRef(null)
     const DISTANCE_THRESHOLD = 10
+    const { signOut } = useAuth()
 
     const calculateDistance = (lat1, lon1, lat2, lon2) => {
         const R = 6371e3
@@ -97,6 +99,8 @@ const Home = () => {
                     <p>Longitude: {position.longitude}</p>
                 </div>
             )}
+
+            <button onClick={signOut}>Sign Out</button>
         </div>
     )
 }

@@ -1,21 +1,95 @@
-import { useRef } from "react"
+import { useEffect, useState } from "react"
+import { Stepper, Button, Stack, TextInput, PasswordInput, PinInput, Space, Anchor } from '@mantine/core'
 import PhoneInput from 'react-phone-input-2'
-import { Button, Container, Input, PasswordInput, Space, TextInput } from "@mantine/core"
 import { notifications } from '@mantine/notifications'
 
 import { supabase } from "../../supabase"
+import CommonLayout from "../../components/CommonLayout"
 
 const SignUp = () => {
+    const [email, setEmail] = useState('')
+    const [name, setName] = useState('')
+    const [password, setPassword] = useState('')
+    const [phone, setPhone] = useState('')
+    const [otp, setOTP] = useState('')
+    const [active, setActive] = useState(0)
+    const [highestStepVisited, setHighestStepVisited] = useState(false)
 
-    const emailRef = useRef('')
-    const nameRef = useRef('')
-    const passwordRef = useRef('')
-    const confirmPasswordRef = useRef('')
-    const phoneRef = useRef('')
+    const handleStepChange = (step) => {
+        setHighestStepVisited(false)
+        if (active === 0 && step === 1) {
+            if (!name.trim() || !email.trim() || !password.trim()) {
+                notifications.show({
+                    title: 'Step Error',
+                    message: 'All fields are required in this step',
+                    className: 'w-5/6 ml-auto',
+                    position: 'top-right',
+                    color: 'red',
+                })
+                return
+            }
+        }
+
+        if (step == 3) {
+            setHighestStepVisited(true)
+            return
+        }
+
+        setActive(step)
+
+    }
+
+    const handleStepBack = (step) => {
+        if (step == 0) {
+            return
+        }
+
+        setActive(step - 1)
+    }
+
+    const shouldAllowSelectStep = (step) => highestStepVisited >= step && active !== step
+
+    const handleGetOTP = async () => {
+
+        let trimPhone = phone.trim()
+
+        if (!trimPhone) {
+            notifications.show({
+                title: 'Step Error',
+                message: 'Phone number is required',
+                className: 'w-5/6 ml-auto',
+                position: 'top-right',
+                color: 'red',
+            })
+        }
+
+        const { data, error } = await supabase.auth.signInWithOtp({
+            phone: `+${trimPhone}`,
+        })
+
+        if (error) {
+            notifications.show({
+                title: 'OTP Error',
+                message: error.message,
+                className: 'w-5/6 ml-auto',
+                position: 'top-right',
+                color: 'red',
+            })
+            return
+        }
+
+        handleStepChange(active + 1)
+    }
 
     const handleSignUp = async () => {
 
-        if (!emailRef.current || !passwordRef.current || !nameRef.current) {
+        let trimName = name.trim()
+        let trimEmail = email.trim()
+        let trimPassword = password.trim()
+        let trimPhone = phone.trim()
+        let trimOtp = otp.trim()
+
+        if (!trimName || !trimEmail || !trimPassword || !trimPhone || !trimOtp) {
             notifications.show({
                 title: 'Registration Error',
                 message: 'All fields are required',
@@ -26,16 +100,26 @@ const SignUp = () => {
             return
         }
 
-        let name = nameRef.current.trim()
-        let email = emailRef.current.trim()
-        let password = passwordRef.current.trim()
+        const { otpData, otpError } = await supabase.auth.verifyOtp({ trimPhone, trimOtp, type: 'sms' })
 
-        const { data, error } = await supabase.auth.signUp({
-            email,
-            password,
-            options: {
+        if (otpError) {
+            notifications.show({
+                title: 'OTP Verification Error',
+                message: otpError.message,
+                className: 'w-5/6 ml-auto',
+                position: 'top-right',
+                color: 'red'
+            })
+
+            return
+        }
+
+        const { data, error } = await supabase.auth.updateUser({
+            email: trimEmail,
+            password: trimPassword,
+            attributes: {
                 data: {
-                    name
+                    trimName
                 }
             }
         })
@@ -48,55 +132,139 @@ const SignUp = () => {
                 position: 'top-right',
                 color: 'red'
             })
+
+            return
         }
     }
 
     return (
-        <Container className="w-full mt-5">
-            <TextInput
-                label="Name"
-                description="Example: John Doe"
-                placeholder="Enter your name"
-                onChange={(event) => nameRef.current = event.currentTarget.value}
-            />
+        <CommonLayout>
+            <Stack
+                styles={() => ({
+                    root: {
+                        height: '100%',
+                    }
+                })}
+            >
+                <Stack className="w-full">
+                    <p className="font-bold text-3xl mb-5">Sign Up</p>
+                    <Stepper size="sm" active={active} onStepClick={setActive}
+                        styles={() => ({
+                            step: {
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                            },
+                            stepBody: {
+                                margin: '8px 0 0',
+                            },
+                            stepLabel: {
+                                textAlign: 'center',
+                            },
+                            stepDescription: {
+                                textAlign: 'center',
+                            },
+                            content: {
+                                width: '90%',
+                                placeSelf: 'center',
+                                marginTop: '15px',
+                            }
+                        })}
+                    >
+                        <Stepper.Step
+                            label="First Step"
+                            description="Sign Up"
+                            allowStepSelect={shouldAllowSelectStep(1)}
+                        >
+                            <Stack gap="xs">
+                                <TextInput
+                                    label="Name"
+                                    value={name}
+                                    description="Example: John Doe"
+                                    placeholder="Enter your name"
+                                    onChange={(event) => setName(event.currentTarget.value)}
+                                />
 
-            <Space h="md" />
-            <TextInput
-                label="Email"
-                description="Example: user1@gmail.com"
-                placeholder="Enter your email"
-                onChange={(event) => emailRef.current = event.currentTarget.value}
-            />
+                                <TextInput
+                                    label="Email"
+                                    value={email}
+                                    description="Example: user1@gmail.com"
+                                    placeholder="Enter your email"
+                                    onChange={(event) => setEmail(event.currentTarget.value)}
+                                />
 
-            <Space h="md" />
-            <Input.Wrapper label="Phone Number" description="Input description">
-                <PhoneInput
-                    className="h-8 mt-2"
-                    inputStyle={{ width: '100%', height: '100%' }}
-                    country={'my'}
-                    onChange={(event) => phoneRef.current = event}
-                />
-            </Input.Wrapper >
+                                <PasswordInput
+                                    label="Password"
+                                    value={password}
+                                    description="Password must be at least 8 characters long | Example: Abc@1234"
+                                    placeholder="Create your password"
+                                    onChange={(event) => setPassword(event.currentTarget.value)}
+                                />
 
-            <Space h="md" />
-            <PasswordInput
-                label="Password"
-                description="Password must be at least 8 characters long | Example: Abc@1234"
-                placeholder="Create your password"
-                onChange={(event) => passwordRef.current = event.currentTarget.value}
-            />
+                                <Space h="md" />
+                                <Button className='w-full' onClick={() => { handleStepChange(active + 1) }}>Sign Up</Button>
+                            </Stack>
+                        </Stepper.Step>
+                        <Stepper.Step
+                            label="Second Step"
+                            description="Verify Phone"
+                            allowStepSelect={shouldAllowSelectStep(1)}
+                        >
+                            <Stack gap="xs">
+                                <PhoneInput
+                                    country={'my'}
+                                    value={phone}
+                                    onChange={(phone) => setPhone(phone)}
+                                />
 
-            <Space h="md" />
-            <PasswordInput
-                label="Confirm Password"
-                description="Both password and confirmation password must be the same"
-                placeholder="Confirm your password"
-                onChange={(event) => confirmPasswordRef.current = event.currentTarget.value}
-            />
+                                <Space h="md" />
+                                <Button className='w-full' disabled={phone.trim() ? false : true} onClick={() => { handleGetOTP() }}>Get OTP</Button>
+                                {
+                                    active != 0
+                                    && <Button className='w-full' variant="default" onClick={() => handleStepBack(active)}>
+                                        Back
+                                    </Button>
+                                }
+                            </Stack>
+                        </Stepper.Step>
+                        <Stepper.Step
+                            label="Third Step"
+                            description="Verify OTP"
+                            allowStepSelect={shouldAllowSelectStep(2)}
+                        >
+                            <Stack>
+                                <PinInput
+                                    oneTimeCode={true}
+                                    size="xl"
+                                    onChange={(value) => setOTP(value)}
+                                    styles={() => ({
+                                        root: {
+                                            justifyContent: 'space-around',
+                                        }
+                                    })}
+                                />
 
-            <Space h="md" />
-            <Button onClick={handleSignUp} variant="filled" fullWidth radius="md">Sign Up</Button>
-        </Container>
+                                <Space h="md" />
+                                <Button className='w-full' disabled={otp.trim() ? false : true} onClick={() => { handleSignUp() }}>Verify and Sign Up</Button>
+                                {
+                                    active != 0
+                                    && <Button className='w-full' variant="default" onClick={() => handleStepBack(active)}>
+                                        Back
+                                    </Button>
+                                }
+                            </Stack>
+                        </Stepper.Step>
+                    </Stepper>
+                </Stack>
+
+                <p className="text-center mt-auto">
+                    <Anchor href="https://mantine.dev/" target="_blank" underline="always">
+                        Have an Account? Click Here
+                    </Anchor>
+                </p>
+            </Stack>
+        </CommonLayout >
     )
 }
 
