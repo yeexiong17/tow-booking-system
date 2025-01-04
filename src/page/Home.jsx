@@ -91,7 +91,7 @@ const Home = () => {
 
     return (
         <div>
-            <button onClick={startLocationWatch}>Start Watching</button>
+            <button onClick={startLocationWatch}>Start Watching Location</button>
 
             {position && (
                 <div>
