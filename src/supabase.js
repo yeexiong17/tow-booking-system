@@ -8,7 +8,7 @@ const options = {
     }
 }
 
-export const supabase = createClient({ supabaseUrl: process.env.REACT_APP_SUPABASE_URL, supabaseKey: process.env.REACT_APP_SUPABASE_ANON_KEY }, options)
+export const supabase = createClient(process.env.REACT_APP_SUPABASE_URL, process.env.REACT_APP_SUPABASE_ANON_KEY, options)
 
 // User Table
 
