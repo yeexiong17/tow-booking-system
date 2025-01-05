@@ -17,7 +17,7 @@ function App() {
   useEffect(() => {
     supabase.auth.onAuthStateChange((_event, session) => {
       if (session) {
-        console.log("Authenticated")
+        console.log(session?.user)
         setAuth(session?.user)
         setUserData(session?.user)
       } else {
