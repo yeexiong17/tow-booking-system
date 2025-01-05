@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import { Modal, Stack } from '@mantine/core'
+import { Button, Modal, Stack } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 
 import CommonLayout from '../components/CommonLayout'
@@ -24,7 +24,7 @@ const Home = () => {
 
             <Stack>
                 <p className="font-bold text-2xl text-neutral-800 mb-5">Welcome, {`${user_metadata.name}`}</p>
-
+                <Button onClick={() => signOut()}>Log Out</Button>
             </Stack>
         </CommonLayout>
     )
