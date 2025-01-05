@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@mantine/carousel": "^7.15.2",
     "@mantine/core": "^7.15.1",
     "@mantine/hooks": "^7.15.1",
     "@mantine/notifications": "^7.15.2",
@@ -10,6 +11,8 @@
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
+    "embla-carousel-autoplay": "^7.1.0",
+    "embla-carousel-react": "^7.1.0",
     "leaflet": "^1.9.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

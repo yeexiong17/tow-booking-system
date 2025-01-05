@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { Stepper, Button, Stack, TextInput, PasswordInput, PinInput, Space, Anchor } from '@mantine/core'
 import PhoneInput from 'react-phone-input-2'
 import { notifications } from '@mantine/notifications'
@@ -17,6 +17,9 @@ const SignUp = () => {
 
     const handleStepChange = (step) => {
         setHighestStepVisited(false)
+
+        let trimPassword = password.trim()
+
         if (active === 0 && step === 1) {
             if (!name.trim() || !email.trim() || !password.trim()) {
                 notifications.show({
@@ -28,6 +31,17 @@ const SignUp = () => {
                 })
                 return
             }
+        }
+
+        if (trimPassword.length < 8 && step == 1) {
+            notifications.show({
+                title: 'Registration Error',
+                message: 'Password must have at least 8 characters',
+                className: 'w-5/6 ml-auto',
+                position: 'top-right',
+                color: 'red'
+            })
+            return
         }
 
         if (step == 3) {
@@ -100,7 +114,11 @@ const SignUp = () => {
             return
         }
 
-        const { otpData, otpError } = await supabase.auth.verifyOtp({ trimPhone, trimOtp, type: 'sms' })
+        const { otpData, otpError } = await supabase.auth.verifyOtp({
+            phone: trimPhone,
+            token: trimOtp,
+            type: 'sms'
+        })
 
         if (otpError) {
             notifications.show({
@@ -259,7 +277,7 @@ const SignUp = () => {
                 </Stack>
 
                 <p className="text-center mt-auto">
-                    <Anchor href="https://mantine.dev/" target="_blank" underline="always">
+                    <Anchor href="/login" underline="always">
                         Have an Account? Click Here
                     </Anchor>
                 </p>

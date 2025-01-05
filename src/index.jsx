@@ -9,6 +9,7 @@ import './styles/index.css'
 import 'react-phone-input-2/lib/style.css'
 import '@mantine/core/styles.css'
 import '@mantine/notifications/styles.css'
+import '@mantine/carousel/styles.css'
 
 import App from './App'
 import { AuthProvider } from './Context'

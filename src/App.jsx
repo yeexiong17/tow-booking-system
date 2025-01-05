@@ -9,6 +9,7 @@ import Public from './page/Public'
 import Home from './page/Home'
 import BookingDetails from './page/User/BookingDetails'
 import SignUp from './page/User/SignUp'
+import Login from './page/Login'
 
 function App() {
   const { auth, setAuth, setUserData } = useAuth()
@@ -33,7 +34,8 @@ function App() {
         <>
           <Route path="/*" element={<Navigate to="/" />} />
           <Route path="/" element={<Public />} />
-          <Route path="/sign-up" element={<SignUp />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/login" element={<Login />} />
         </>
       ) : (
         <>
