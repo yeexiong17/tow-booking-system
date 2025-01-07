@@ -1,0 +1,37 @@
+.navbar {
+    height: calc(100vh / 10);
+    width: 100%;
+    padding: 10px;
+    display: flex;
+    box-shadow: 0px -4px 6px rgba(211, 211, 211, 0.1);
+}
+
+.navbarMain {
+    display: flex;
+    justify-content: space-between;
+    flex: 1;
+}
+
+.link {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    aspect-ratio: 1;
+    border-radius: var(--mantine-radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: black;
+
+    &:hover {
+        background-color: var(--mantine-color-blue-7);
+    }
+
+    &[data-active] {
+        &,
+        &:hover {
+            background-color: var(--mantine-color-white);
+            color: blue;
+        }
+    }
+}

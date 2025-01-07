@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import { Button, Modal, Stack } from '@mantine/core'
-import { useDisclosure } from '@mantine/hooks'
+import { Button, Stack } from '@mantine/core'
 
 import CommonLayout from '../components/CommonLayout'
 import { useAuth } from '../Context'
