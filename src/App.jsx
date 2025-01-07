@@ -10,6 +10,7 @@ import Home from './page/Home'
 import BookingDetails from './page/User/BookingDetails'
 import SignUp from './page/User/SignUp'
 import Login from './page/Login'
+import Dashboard from './page/Admin/Dashboard'
 
 function App() {
   const [loading, setLoading] = useState(true)
@@ -49,7 +50,15 @@ function App() {
                   path="/*"
                   element={
                     <ProtectedRoute>
-                      {/* <Navigate to="/manage-admin" replace /> */}
+                      <Navigate to="/admin-dashboard" replace />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin-dashboard"
+                  element={
+                    <ProtectedRoute>
+                      <Dashboard />
                     </ProtectedRoute>
                   }
                 />
@@ -60,7 +69,15 @@ function App() {
                   path="/*"
                   element={
                     <ProtectedRoute>
-                      {/* <Navigate to="/admin-dashboard" replace /> */}
+                      <Navigate to="/admin-dashboard" replace />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin-dashboard"
+                  element={
+                    <ProtectedRoute>
+                      <Dashboard />
                     </ProtectedRoute>
                   }
                 />
@@ -71,7 +88,6 @@ function App() {
                   path="/*"
                   element={
                     <ProtectedRoute>
-                      {/* <Navigate to="/admin-dashboard" replace /> */}
                     </ProtectedRoute>
                   }
                 />
@@ -104,7 +120,7 @@ function App() {
               </>
             )}
             <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
+          </Routes >
         )
       }
     </>
