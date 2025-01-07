@@ -1,7 +1,7 @@
 .navbar {
     height: calc(100vh / 10);
     width: 100%;
-    padding: 10px;
+    padding: 10px ;
     display: flex;
     box-shadow: 0px -4px 6px rgba(211, 211, 211, 0.1);
 }

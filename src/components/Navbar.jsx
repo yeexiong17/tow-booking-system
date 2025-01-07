@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-import { Flex, Stack, Text, Tooltip, UnstyledButton } from '@mantine/core'
+import { Text, Tooltip, UnstyledButton } from '@mantine/core'
 import {
     IconCalendarStats,
     IconFingerprint,
