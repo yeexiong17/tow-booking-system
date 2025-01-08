@@ -2,12 +2,10 @@ import { useEffect, useState } from 'react'
 
 import { Group, Text, Tooltip, UnstyledButton } from '@mantine/core'
 import {
-    IconCalendarStats,
-    IconFingerprint,
     IconHome2,
     IconLayoutDashboard,
     IconLogout,
-    IconSettings,
+    IconHistory,
     IconSwitchHorizontal,
     IconUser,
 } from '@tabler/icons-react'
@@ -29,10 +27,8 @@ const NavbarLink = ({ icon: Icon, label, active, onClick }) => {
 
 const mockdata = [
     { icon: IconHome2, label: 'Home' },
-    { icon: IconUser, label: 'Account' },
-    { icon: IconCalendarStats, label: 'Releases' },
-    { icon: IconFingerprint, label: 'Security' },
-    { icon: IconSettings, label: 'Settings' },
+    { icon: IconHistory, label: 'History' },
+    { icon: IconUser, label: 'Profile' },
 ]
 
 const Navbar = () => {
