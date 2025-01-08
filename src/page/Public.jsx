@@ -27,7 +27,7 @@ const Public = () => {
                 })}
             >
                 <div>
-                    <p className='font-bold text-3xl'>App Name</p>
+                    <p className='font-bold text-3xl'>YEE XIONG CARRY!</p>
                 </div>
 
                 <div className='mt-10'>
