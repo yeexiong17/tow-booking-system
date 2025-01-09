@@ -13,23 +13,31 @@ import {
 import classes from '../styles/Navbar.module.css'
 import desktopClasses from '../styles/DesktopNavbar.module.css'
 import { useAuth } from '../Context'
+import { Link } from 'react-router-dom'
 
-const NavbarLink = ({ icon: Icon, label, active, onClick }) => {
+
+const NavbarLink = ({ icon: Icon, label, active, onClick, link }) => {
     return (
-        <Tooltip label={label} position="right" transitionProps={{ duration: 0 }}>
-            <UnstyledButton onClick={onClick} className={classes.link} data-active={active || undefined}>
-                <Icon size={20} stroke={2} />
-                <Text size='xs'>{label}</Text>
-            </UnstyledButton>
-        </Tooltip>
+        <Link
+            to={link}
+            key={label}
+        >
+            <Tooltip label={label} position="right" transitionProps={{ duration: 0 }}>
+                <UnstyledButton onClick={onClick} className={classes.link} data-active={active || undefined}>
+                    <Icon size={20} stroke={2} />
+                    <Text size='xs'>{label}</Text>
+                </UnstyledButton>
+            </Tooltip>
+        </Link>
     )
 }
 
-const mockdata = [
-    { icon: IconHome2, label: 'Home' },
-    { icon: IconHistory, label: 'History' },
-    { icon: IconUser, label: 'Profile' },
+const userNavData = [
+    { link: '/home', icon: IconHome2, label: 'Home' },
+    { link: '/history', icon: IconHistory, label: 'History' },
+    { link: '/profile', icon: IconUser, label: 'Profile' },
 ]
+
 
 const Navbar = () => {
     const [active, setActive] = useState(0)
@@ -54,7 +62,7 @@ const Navbar = () => {
         }
     }, [])
 
-    const links = mockdata.map((link, index) => (
+    const links = userNavData.map((link, index) => (
         <NavbarLink
             {...link}
             key={link.label}
