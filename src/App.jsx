@@ -11,6 +11,7 @@ import BookingDetails from './page/User/BookingDetails'
 import SignUp from './page/User/SignUp'
 import Login from './page/Login'
 import Dashboard from './page/Admin/Dashboard'
+import VehicleDetails from './page/User/VehicleDetails'
 
 function App() {
   const [loading, setLoading] = useState(true)
@@ -114,6 +115,14 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <BookingDetails />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/vehicle-details"
+                  element={
+                    <ProtectedRoute>
+                      <VehicleDetails />
                     </ProtectedRoute>
                   }
                 />

@@ -1,6 +1,6 @@
 import { useState } from "react"
 
-import { Button, PasswordInput, Space, Stack, TextInput } from "@mantine/core"
+import { Button, PasswordInput, Space, Stack, TextInput, Anchor } from "@mantine/core"
 import CommonLayout from "../components/CommonLayout"
 import { notifications } from "@mantine/notifications"
 
@@ -71,6 +71,11 @@ const Login = () => {
                     <Space h="md" />
                     <Button className='w-full' onClick={() => { handleLogIn() }}>Log In</Button>
                 </Stack>
+                <p className="text-center mt-auto">
+                    <Anchor href="/signup" underline="always">
+                        New User? Click Here
+                    </Anchor>
+                </p>
             </Stack>
         </CommonLayout>
     )
