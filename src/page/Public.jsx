@@ -10,12 +10,15 @@ import Autoplay from 'embla-carousel-autoplay'
 import TowTruck1 from '../images/tow-truck-1.jpg'
 import BreakDown1 from '../images/break-down-1.jpg'
 import Booking1 from '../images/booking-1.jpg'
+import { useAuth } from '../Context'
 
 const Public = () => {
 
     const navigate = useNavigate()
 
-    const autoplay = useRef(Autoplay({ delay: 3000 }));
+    const autoplay = useRef(Autoplay({ delay: 3000 }))
+
+    const { isMobile } = useAuth()
 
     return (
         <CommonLayout>
@@ -27,15 +30,15 @@ const Public = () => {
                 })}
             >
                 <div>
-                    <p className='font-bold text-3xl'>YEE XIONG CARRY!</p>
+                    <p className='font-bold text-3xl'>Logo</p>
                 </div>
 
-                <div className='mt-10'>
+                <div className='mt-10 grow'>
                     <Carousel
                         plugins={[autoplay.current]}
                         onMouseEnter={autoplay.current.stop}
                         onMouseLeave={autoplay.current.reset}
-                        slideSize="70%"
+                        slideSize={isMobile ? '70%' : '30%'}
                         height="100%"
                         slideGap="xl"
                         loop

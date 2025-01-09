@@ -15,12 +15,9 @@ const CommonLayout = ({ children }) => {
     }, [])
 
     return (
-        <Container pos='relative' className={` ${isAdmin ? 'flex' : 'w-full pt-10 pb-20 lg:pb-10'} w-full pt-10 pb-20 lg:pb-10`}
+        <Container className={` ${isAdmin ? 'flex' : 'w-full pt-10 pb-20 lg:pb-10'}`}
             styles={() => ({
-                root: {
-                    margin: 0,
-                    padding: 0,
-                }
+
             })}
         >
             <LoadingOverlay visible={visible} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
@@ -29,7 +26,7 @@ const CommonLayout = ({ children }) => {
                     ? <Navbar />
                     : ''
             }
-            <Container className={`h-full ${!isAdmin ? 'py-20' : ''}`}>
+            <Container className={`h-full ${!isAdmin ? 'py-10' : ''}`}>
                 {children}
             </Container>
             {
