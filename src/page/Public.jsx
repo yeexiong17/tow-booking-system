@@ -43,12 +43,13 @@ const Public = () => {
                         slideGap="xl"
                         loop
                         speed={5}
-                        controlsOffset="xs"
-                        controlSize={27}
                         withControls={false}
                         styles={() => ({
+                            root: {
+                                height: '100%'
+                            },
                             slide: {
-                                marginRight: '30px',
+                                marginRight: '500px',
                                 marginTop: 'auto',
                                 marginBottom: 'auto'
                             }

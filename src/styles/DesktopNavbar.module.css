@@ -1,9 +1,9 @@
 .navbar {
-    height: 100%;
     width: 250px;
     padding: var(--mantine-spacing-md);
     display: flex;
     flex-direction: column;
+    flex-shrink: 0;
     border-right: 1px solid light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
 }
 

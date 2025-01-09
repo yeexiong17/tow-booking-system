@@ -15,26 +15,32 @@ const CommonLayout = ({ children }) => {
     }, [])
 
     return (
-        <Container className={` ${isAdmin ? 'flex' : 'w-full pt-10 pb-20 lg:pb-10'}`}
+        <Container pos='relative' size="responsive" className={` ${isAdmin ? 'flex' : 'pt-10 pb-20 lg:pb-10'}`}
             styles={() => ({
-
+                root: {
+                    margin: 0
+                }
             })}
         >
             <LoadingOverlay visible={visible} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
             {
-                auth && isAdmin
+                auth
                     ? <Navbar />
                     : ''
             }
-            <Container className={`h-full ${!isAdmin ? 'py-10' : ''}`}>
+            <Container
+                size="responsive"
+                className={`grow h-full ${isAdmin ? 'pt-8' : ''}`}
+                styles={() => ({
+                    root: {
+                        margin: 0,
+                        overflow: 'auto',
+                    }
+                })}
+            >
                 {children}
             </Container>
-            {
-                auth && !isAdmin
-                    ? <Navbar />
-                    : ''
-            }
-        </Container>
+        </Container >
 
 
     )

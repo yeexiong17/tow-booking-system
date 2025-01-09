@@ -6,14 +6,15 @@ import {
     IconLayoutDashboard,
     IconLogout,
     IconHistory,
-    IconSwitchHorizontal,
     IconUser,
+    IconUserCog,
+    IconSettings,
 } from '@tabler/icons-react'
 
 import classes from '../styles/Navbar.module.css'
 import desktopClasses from '../styles/DesktopNavbar.module.css'
 import { useAuth } from '../Context'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 
 
 const NavbarLink = ({ icon: Icon, label, active, onClick, link }) => {
@@ -38,17 +39,19 @@ const userNavData = [
     { link: '/profile', icon: IconUser, label: 'Profile' },
 ]
 
-
 const Navbar = () => {
+    const location = useLocation()
     const [active, setActive] = useState(0)
-    const [desktopActive, setDesktopActive] = useState('Billing')
+    const [desktopActive, setDesktopActive] = useState()
     const [desktopData, setDesktopData] = useState([])
     const [isAdmin, setIsAdmin] = useState(false)
     const { auth, signOut } = useAuth()
 
     useEffect(() => {
+        setDesktopActive(location.pathname)
         if (auth && (auth.user_metadata.role === 'superadmin')) {
             setDesktopData([
+                { link: '/manage-admin', label: 'Manage Admin', icon: IconUserCog }
             ])
 
             setIsAdmin(true)
@@ -71,21 +74,20 @@ const Navbar = () => {
         />
     ))
 
-    const desktopLinks = desktopData.map((item) => (
-        <a
-            className={desktopClasses.link}
-            data-active={item.label === active || undefined}
-            href={item.link}
+    const desktopLinks = desktopData.map((item, index) => (
+        <Link
+            to={item.link}
             key={item.label}
+            className={desktopClasses.link}
+            data-active={desktopActive === item.link ? 'true' : undefined}
             onClick={(event) => {
-                event.preventDefault();
-                setDesktopActive(item.label);
+                setDesktopActive(item.link)
             }}
         >
             <item.icon className={desktopClasses.linkIcon} stroke={1.5} />
             <span>{item.label}</span>
-        </a>
-    ));
+        </Link>
+    ))
 
     return (
         !isAdmin
@@ -103,10 +105,20 @@ const Navbar = () => {
                 </div>
 
                 <div className={desktopClasses.footer}>
-                    <a href="#" className={desktopClasses.link} onClick={(event) => event.preventDefault()}>
-                        <IconSwitchHorizontal className={desktopClasses.linkIcon} stroke={1.5} />
-                        <span>Change account</span>
-                    </a>
+                    <Link
+                        to="/admin-setting"
+                        className={desktopClasses.link}
+                        data-active={desktopActive == '/admin-setting' ? 'true' : undefined}
+                        onClick={(event) => {
+                            setDesktopActive('/admin-setting')
+                        }}
+                    >
+                        <IconSettings
+                            className={desktopClasses.linkIcon}
+                            stroke={1.5}
+                        />
+                        <span>Settings</span>
+                    </Link>
 
                     <a href="#" className={desktopClasses.link} onClick={(event) => { event.preventDefault(); signOut() }}>
                         <IconLogout className={desktopClasses.linkIcon} stroke={1.5} />

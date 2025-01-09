@@ -12,6 +12,8 @@ import SignUp from './page/User/SignUp'
 import Login from './page/Login'
 import Dashboard from './page/Admin/Dashboard'
 import VehicleDetails from './page/User/VehicleDetails'
+import ManageAdmin from './page/Superadmin/ManageAdmin'
+import AdminSetting from './page/AdminSetting'
 
 function App() {
   const [loading, setLoading] = useState(true)
@@ -51,15 +53,23 @@ function App() {
                   path="/*"
                   element={
                     <ProtectedRoute>
-                      <Navigate to="/admin-dashboard" replace />
+                      <Navigate to="/manage-admin" replace />
                     </ProtectedRoute>
                   }
                 />
                 <Route
-                  path="/admin-dashboard"
+                  path="/manage-admin"
                   element={
                     <ProtectedRoute>
-                      <Dashboard />
+                      <ManageAdmin />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin-setting"
+                  element={
+                    <ProtectedRoute>
+                      <AdminSetting />
                     </ProtectedRoute>
                   }
                 />

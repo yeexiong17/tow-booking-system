@@ -9,6 +9,7 @@ const options = {
 }
 
 export const supabase = createClient(process.env.REACT_APP_SUPABASE_URL, process.env.REACT_APP_SUPABASE_ANON_KEY, options)
+export const adminSupabase = createClient(process.env.REACT_APP_SUPABASE_URL, process.env.REACT_APP_SERVICE_ROLE_KEY, options)
 
 // Location Table
 export const createNewLocation = async (locationData) => {

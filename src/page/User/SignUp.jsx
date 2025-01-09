@@ -33,7 +33,8 @@ const SignUp = () => {
             options: {
                 data: {
                     name: trimName,
-                    role: 'user'
+                    role: 'user',
+                    email: trimEmail
                 }
             }
         })
