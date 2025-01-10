@@ -1,23 +1,25 @@
 import { useState } from "react"
 import { Button, Stack, TextInput, Space} from '@mantine/core'
 import { notifications } from '@mantine/notifications'
+import { useNavigate } from 'react-router-dom'
 
 import CommonLayout from "../../components/CommonLayout"
 
-const SignUp = () => {
+const VehicleDetails = () => {
     const [vehicleType, setType] = useState('')
     const [vehicleModel, setModel] = useState('')
     const [vehicleColor, setColor] = useState('')
     const [vehicleNumPlate, setNumPlate] = useState('')
+    const navigate = useNavigate();
 
-    const handleSignUp = async () => {
+    const handleVehicleDetails = async () => {
 
         let trimType = vehicleType.trim()
         let trimModel = vehicleModel.trim()
         let trimColor = vehicleColor.trim()
         let trimNumPlate = vehicleNumPlate.trim()
 
-        if (!trimType || !trimModel || !trimColor || trimNumPlate) {
+        if (!trimType || !trimModel || !trimColor || !trimNumPlate) {
             notifications.show({
                 title: 'Details Filling Error',
                 message: 'All fields are required',
@@ -26,7 +28,9 @@ const SignUp = () => {
                 color: 'red'
             })
             return
-        }
+        } 
+        navigate('/payment') //('/booking-details')
+        
     }
 
     return (
@@ -73,11 +77,11 @@ const SignUp = () => {
                     />
 
                     <Space h="md" />
-                    <Button className='w-full' onClick={() => {/* handleVehicleDetails */}}>Next</Button>
+                    <Button className='w-full' onClick={() => {handleVehicleDetails()}}>Next</Button>
                 </Stack>
             </Stack>
         </CommonLayout >
     )
 }
 
-export default SignUp
+export default VehicleDetails
