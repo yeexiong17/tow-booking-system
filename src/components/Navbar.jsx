@@ -9,6 +9,7 @@ import {
     IconUser,
     IconUserCog,
     IconSettings,
+    IconUserPlus,
 } from '@tabler/icons-react'
 
 import classes from '../styles/Navbar.module.css'
@@ -59,6 +60,7 @@ const Navbar = () => {
         else if (auth && (auth.user_metadata.role === 'admin')) {
             setDesktopData([
                 { link: '/admin-dashboard', label: 'Dashboard', icon: IconLayoutDashboard },
+                { link: '/tow-driver-application', label: 'Tow Driver Application', icon: IconUserPlus },
             ])
 
             setIsAdmin(true)
