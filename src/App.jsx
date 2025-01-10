@@ -8,7 +8,7 @@ import ProtectedRoute from './components/ProtectedRoute'
 import Public from './page/Public'
 import Home from './page/Home'
 import BookingDetails from './page/User/BookingDetails'
-import SignUp from './page/User/SignUp'
+import SignUp from './page/SignUp'
 import Login from './page/Login'
 import Dashboard from './page/Admin/Dashboard'
 import VehicleDetails from './page/User/VehicleDetails'
@@ -16,6 +16,7 @@ import Payment from './page/User/Payment'
 import Feedback from './page/Feedback'
 import ManageAdmin from './page/Superadmin/ManageAdmin'
 import AdminSetting from './page/AdminSetting'
+import TowDriverApplication from './page/Admin/ManageTowDriver'
 
 function App() {
   const [loading, setLoading] = useState(true)
@@ -91,6 +92,14 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <Dashboard />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/tow-driver-application"
+                  element={
+                    <ProtectedRoute>
+                      <TowDriverApplication />
                     </ProtectedRoute>
                   }
                 />
