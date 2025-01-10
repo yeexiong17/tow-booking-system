@@ -17,6 +17,9 @@ import {
     PasswordInput,
     Avatar,
     Drawer,
+    Fieldset,
+    Card,
+    Image,
 } from '@mantine/core'
 
 import CommonLayout from '../../components/CommonLayout'
@@ -72,7 +75,7 @@ const data = [
 const TowDriverApplication = () => {
 
     const [search, setSearch] = useState('')
-    const [towData, setTowData] = useState([])
+    const [towDriverData, setTowDriverData] = useState([])
     const [sortedData, setSortedData] = useState([])
     const [sortBy, setSortBy] = useState(null)
     const [reverseSortDirection, setReverseSortDirection] = useState(false)
@@ -92,9 +95,10 @@ const TowDriverApplication = () => {
     }, [])
 
     const getAllTow = async () => {
-        const { data, error } = await supabase.from('profiles').select().eq('role', 'tow')
-        setTowData(data)
-        setSortedData(data)
+        const { data, error } = await supabase.from('tow_driver_details').select()
+        console.log(data)
+        // setTowDriverData(data)
+        // setSortedData(data)
     }
 
     const handleNewTowDriver = async () => {
@@ -148,7 +152,6 @@ const TowDriverApplication = () => {
                     </Group>
                 </Table.Td>
                 <Table.Td>{item.email}</Table.Td>
-                <Table.Td>{item.job}</Table.Td>
                 <Table.Td>
                     <Button variant="default" onClick={open}>
                         View Details
@@ -191,46 +194,127 @@ const TowDriverApplication = () => {
             </Modal>
             <Drawer position='right' offset={8} radius="md" opened={opened} onClose={close} title="Tow Driver Application"
                 styles={() => ({
-                    root: {
-                        position: 'relative'
+                    title: {
+                        fontWeight: 'bold'
                     },
                     body: {
-                        height: '100%'
+                        height: '90%',
+                        paddingBottom: 0,
+                        overflow: 'hidden'
+                    },
+                    content: {
+                        postition: 'relative'
                     }
                 })}
             >
-                <Stack className='h-full'>
-                    <Flex className='mt-auto'>
-                        <Button className='grow'>Reject</Button>
-                        <Space w="xs" />
-                        <Button className='grow'>Approve</Button>
-                    </Flex>
-                </Stack>
+                <ScrollArea className='h-full pb-14'>
+                    <Stack className='h-full'>
+                        <Card shadow="xs" padding="sm" radius="md" withBorder>
+                            <p className='font-bold'>Personal Details</p>
+                            <Space h="xs" />
+                            <Flex className='items-center'>
+                                <Avatar
+                                    src="https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-8.png"
+                                    radius="lg"
+                                    size="xl"
+                                />
+                                <Space w="md" />
+                                <div className='py-4'>
+                                    <Text><span className='font-bold'>Name: </span>Test 4</Text>
+                                    <Text><span className='font-bold'>Email: </span>test4@gmail.com</Text>
+                                    <Text><span className='font-bold'>Phone: </span>60123456789</Text>
+                                </div>
+                            </Flex>
+                        </Card>
+                        <Card shadow="xs" padding="sm" radius="md" withBorder>
+                            <p className='font-bold'>Identification Details</p>
+                            <Space h="xs" />
+                            <Stack className='items-center'>
+                                <Image
+                                    radius="md"
+                                    src="https://cdn-icons-png.flaticon.com/512/179/179573.png"
+                                    styles={() => ({
+                                        root: {
+                                            aspectRatio: '3/2',
+                                        }
+                                    })}
+                                />
+                                <div>
+                                    <Text className='font-bold'><span className='font-bold'>Model: </span>Toyota Vios</Text>
+                                    <Text><span className='font-bold'>Plate Number: </span>ABC1234</Text>
+                                </div>
+                            </Stack>
+                        </Card>
+                        <Card shadow="xs" padding="sm" radius="md" withBorder>
+                            <p className='font-bold'>Driving License</p>
+                            <Space h="xs" />
+                            <Stack className='items-center'>
+                                <Image
+                                    radius="md"
+                                    src="https://cdn-icons-png.flaticon.com/512/179/179573.png"
+                                    styles={() => ({
+                                        root: {
+                                            aspectRatio: '3/2',
+                                        }
+                                    })}
+                                />
+                                <div>
+                                    <Text className='font-bold'><span className='font-bold'>Model: </span>Toyota Vios</Text>
+                                    <Text><span className='font-bold'>Plate Number: </span>ABC1234</Text>
+                                </div>
+                            </Stack>
+                        </Card>
+                        <Card shadow="xs" padding="sm" radius="md" withBorder>
+                            <p className='font-bold'>Vehicle Details</p>
+                            <Space h="xs" />
+                            <Stack className='items-center'>
+                                <Image
+                                    radius="md"
+                                    src="https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/images/bg-7.png"
+                                    styles={() => ({
+                                        root: {
+                                            aspectRatio: '3/2',
+                                        }
+                                    })}
+                                />
+                                <div>
+                                    <Text className='font-bold'><span className='font-bold'>Model: </span>Toyota Vios</Text>
+                                    <Text><span className='font-bold'>Plate Number: </span>ABC1234</Text>
+                                </div>
+                            </Stack>
+                        </Card>
+                    </Stack>
+                </ScrollArea>
+                <Flex className='mt-auto' styles={() => ({
+                    root: {
+                        position: 'sticky',
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        zIndex: 2000
+                    }
+                })}>
+                    <Button color='red' className='grow' size="md">Reject</Button>
+                    <Space w="xs" />
+                    <Button className='grow' size="md">Approve</Button>
+                </Flex>
             </Drawer>
+
             <Stack>
                 <p className='font-bold text-2xl'>Tow Driver Application</p>
-                {/* <Flex>
-                    <Button
-                        onClick={() => open()}
-                    >
-                        Create Admin
-                    </Button>
-                </Flex> */}
-
                 <ScrollArea h={300}>
                     <Table miw={800} verticalSpacing="sm">
                         <Table.Thead>
                             <Table.Tr>
                                 <Table.Th>User</Table.Th>
                                 <Table.Th>Email</Table.Th>
-                                <Table.Th>Job</Table.Th>
                             </Table.Tr>
                         </Table.Thead>
                         <Table.Tbody>{rows}</Table.Tbody>
                     </Table>
                 </ScrollArea>
             </Stack>
-        </CommonLayout>
+        </CommonLayout >
     )
 }
 
