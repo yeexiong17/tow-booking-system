@@ -23,6 +23,7 @@ import { adminSupabase, supabase } from '../../supabase'
 import { useAuth } from '../../Context'
 import { notifications } from '@mantine/notifications'
 import { useDisclosure } from '@mantine/hooks'
+import { convertToMalaysiaTime } from '../../helpers/HelperFunction'
 
 const Th = ({ children, reversed, sorted, onSort }) => {
     const Icon = sorted ? (reversed ? IconChevronUp : IconChevronDown) : IconSelector;
@@ -120,6 +121,7 @@ const ManageAdmin = () => {
             <Table.Td>{row.name}</Table.Td>
             <Table.Td>{row.email}</Table.Td>
             <Table.Td>{row.status}</Table.Td>
+            <Table.Td>{convertToMalaysiaTime(row.created_at)}</Table.Td>
         </Table.Tr>
     ))
 
@@ -236,6 +238,13 @@ const ManageAdmin = () => {
                                 >
                                     Status
                                 </Th>
+                                <Table.Th className={classes.th}>
+                                    <UnstyledButton className={classes.control}>
+                                        <Group justify="space-between">
+                                            <Text fw={500} fz="sm">Date Created</Text>
+                                        </Group>
+                                    </UnstyledButton>
+                                </Table.Th>
                             </Table.Tr>
                         </Table.Thead>
                         <Table.Tbody>
