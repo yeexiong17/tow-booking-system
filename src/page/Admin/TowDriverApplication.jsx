@@ -1,33 +1,25 @@
 import { useEffect, useState } from 'react'
-import { IconSearch } from '@tabler/icons-react'
+
 import {
     Stack,
-    Center,
     Group,
-    keys,
     ScrollArea,
     Table,
     Text,
-    TextInput,
-    UnstyledButton,
     Flex,
     Button,
-    Modal,
     Space,
-    PasswordInput,
     Avatar,
     Drawer,
-    Fieldset,
     Card,
     Image,
 } from '@mantine/core'
 
 import CommonLayout from '../../components/CommonLayout'
-import { adminSupabase, supabase } from '../../supabase'
+import { supabase } from '../../supabase'
 import { useAuth } from '../../Context'
 import { notifications } from '@mantine/notifications'
 import { useDisclosure } from '@mantine/hooks'
-import { Container } from 'postcss'
 
 const data = [
     {
@@ -74,16 +66,7 @@ const data = [
 
 const TowDriverApplication = () => {
 
-    const [search, setSearch] = useState('')
     const [towDriverData, setTowDriverData] = useState([])
-    const [sortedData, setSortedData] = useState([])
-    const [sortBy, setSortBy] = useState(null)
-    const [reverseSortDirection, setReverseSortDirection] = useState(false)
-    const [email, setEmail] = useState('')
-    const [password, setPassword] = useState('')
-    const [name, setName] = useState('')
-
-    // Modal State
     const [opened, { open, close }] = useDisclosure(false)
 
     const { toggle } = useAuth()
@@ -103,41 +86,7 @@ const TowDriverApplication = () => {
 
     const handleNewTowDriver = async () => {
 
-        let trimEmail = email.trim()
-        let trimPassword = password.trim()
-        let trimName = name.trim()
 
-        toggle()
-        const { data, error } = await adminSupabase.auth.admin.createUser({
-            email: trimEmail,
-            password: trimPassword,
-            email_confirm: true,
-            user_metadata: {
-                name: trimName,
-                role: 'admin',
-                email
-            },
-        })
-        toggle()
-
-        if (error) {
-            notifications.show({
-                title: 'Failed To Create New Admin',
-                message: error.message,
-                className: 'w-5/6 ml-auto',
-                position: 'top-right',
-                color: 'red'
-            })
-
-            return
-        }
-
-        notifications.show({
-            title: 'Admin Created Successfully',
-            className: 'w-5/6 ml-auto',
-            position: 'top-right',
-            color: 'green'
-        })
     }
 
     const rows = data.map((item) => {
@@ -163,35 +112,6 @@ const TowDriverApplication = () => {
 
     return (
         <CommonLayout>
-            <Modal opened={undefined} onClose={close} title="New Admin">
-                <TextInput
-                    required
-                    label="Name"
-                    placeholder="John Doe"
-                    value={name}
-                    onChange={(event) => setName(event.currentTarget.value)}
-                    radius="md"
-                />
-                <Space h="md" />
-                <TextInput
-                    required
-                    label="Email"
-                    placeholder="hello@mantine.dev"
-                    value={email}
-                    onChange={(event) => setEmail(event.currentTarget.value)}
-                    radius="md"
-                />
-                <Space h="md" />
-                <PasswordInput
-                    required
-                    label="Password"
-                    placeholder="Your password"
-                    value={password}
-                    onChange={(event) => setPassword(event.currentTarget.value)}
-                    radius="md"
-                />
-                <Space h="md" />
-            </Modal>
             <Drawer position='right' offset={8} radius="md" opened={opened} onClose={close} title="Tow Driver Application"
                 styles={() => ({
                     title: {
