@@ -16,7 +16,7 @@ import Payment from './page/User/Payment'
 import Feedback from './page/Feedback'
 import ManageAdmin from './page/Superadmin/ManageAdmin'
 import AdminSetting from './page/AdminSetting'
-import TowDriverApplication from './page/Admin/ManageTowDriver'
+import TowDriverApplication from './page/Admin/TowDriverApplication'
 
 function App() {
   const [loading, setLoading] = useState(true)
