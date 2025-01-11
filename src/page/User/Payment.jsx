@@ -19,7 +19,14 @@ const Payment = () => {
             })
             return
         }
-        navigate('/feedback');
+        notifications.show({
+            title: 'Thank You!',
+            message: 'Transaction Completed.',
+            className: 'w-5/6 ml-auto',
+            position: 'top-right',
+            color: 'green',
+        });
+        navigate('/home');
     };
 
     return (

@@ -13,6 +13,7 @@ import Login from './page/Login'
 import Dashboard from './page/Admin/Dashboard'
 import VehicleDetails from './page/User/VehicleDetails'
 import Payment from './page/User/Payment'
+import Profile from './page/User/Profile'
 import Feedback from './page/Feedback'
 import ManageAdmin from './page/Superadmin/ManageAdmin'
 import AdminSetting from './page/AdminSetting'
@@ -169,6 +170,14 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <Feedback />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/profile"
+                  element={
+                    <ProtectedRoute>
+                      <Profile />
                     </ProtectedRoute>
                   }
                 />

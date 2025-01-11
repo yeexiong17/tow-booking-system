@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Button, Stack, TextInput, Space } from '@mantine/core'
+import { Button, Stack, TextInput, Space, FileInput } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
 import { useNavigate } from 'react-router-dom'
 
@@ -10,6 +10,8 @@ const VehicleDetails = () => {
     const [vehicleModel, setModel] = useState('')
     const [vehicleColor, setColor] = useState('')
     const [vehicleNumPlate, setNumPlate] = useState('')
+    const [vehicleImage, setVehicleImage] = useState(null)
+    const [imagePreview, setImagePreview] = useState(null)
     const navigate = useNavigate()
 
     const handleVehicleDetails = async () => {
@@ -19,7 +21,7 @@ const VehicleDetails = () => {
         let trimColor = vehicleColor.trim()
         let trimNumPlate = vehicleNumPlate.trim()
 
-        if (!trimType || !trimModel || !trimColor || !trimNumPlate) {
+        if (!trimType || !trimModel || !trimColor || !trimNumPlate || !vehicleImage) {
             notifications.show({
                 title: 'Details Filling Error',
                 message: 'All fields are required',
@@ -32,6 +34,21 @@ const VehicleDetails = () => {
         navigate('/payment')
 
     }
+
+    const handleImageUpload = (file) => {
+        setVehicleImage(file);
+
+        // Generate preview
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = () => {
+                setImagePreview(reader.result);
+            };
+            reader.readAsDataURL(file);
+        } else {
+            setImagePreview(null);
+        }
+    };
 
     return (
         <CommonLayout>
@@ -75,6 +92,21 @@ const VehicleDetails = () => {
                         placeholder="Enter vehicle number plate"
                         onChange={(event) => setNumPlate(event.currentTarget.value)}
                     />
+
+                    <FileInput
+                        label="Upload Vehicle Photo"
+                        description="Take a photo or select from your device"
+                        placeholder="Click to upload or drag file here"
+                        accept="image/*"
+                        onChange={(file) => handleImageUpload(file)}
+                    />
+
+                    {imagePreview && (
+                        <div className="mt-4">
+                            <p className="text-gray-600 text-sm">Image Preview:</p>
+                            <img src={imagePreview} alt="Vehicle Preview" className="w-full max-w-xs rounded-lg" />
+                        </div>
+                    )}
 
                     <Space h="md" />
                     <Button className='w-full' onClick={() => { handleVehicleDetails() }}>Next</Button>
