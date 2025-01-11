@@ -4,9 +4,10 @@ import { Container, LoadingOverlay } from '@mantine/core'
 import { useAuth } from '../Context'
 import Navbar from './Navbar'
 
-const CommonLayout = ({ children }) => {
+const CommonLayout = ({ children, navShouldShow = true }) => {
     const { auth, visible } = useAuth()
     const [isAdmin, setIsAdmin] = useState(false)
+    const [showNav, setShowNav] = useState(navShouldShow)
 
     useEffect(() => {
         if (auth && (auth.user_metadata.role == 'admin' || auth.user_metadata.role == 'superadmin')) {
@@ -24,7 +25,7 @@ const CommonLayout = ({ children }) => {
         >
             <LoadingOverlay visible={visible} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
             {
-                auth
+                auth && showNav
                     ? <Navbar />
                     : ''
             }

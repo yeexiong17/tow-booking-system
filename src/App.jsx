@@ -17,6 +17,7 @@ import Feedback from './page/Feedback'
 import ManageAdmin from './page/Superadmin/ManageAdmin'
 import AdminSetting from './page/AdminSetting'
 import TowDriverApplication from './page/Admin/TowDriverApplication'
+import History from './page/User/History'
 
 function App() {
   const [loading, setLoading] = useState(true)
@@ -128,6 +129,14 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <Home />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/history"
+                  element={
+                    <ProtectedRoute>
+                      <History />
                     </ProtectedRoute>
                   }
                 />

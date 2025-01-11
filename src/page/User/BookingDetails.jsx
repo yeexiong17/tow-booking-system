@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import Map from '../../components/Map'
 import { getLocation } from '../../supabase'
+import CommonLayout from '../../components/CommonLayout'
 
 const BookingDetails = () => {
 
@@ -21,15 +22,9 @@ const BookingDetails = () => {
     }, [])
 
     return (
-        <div className='w-full flex justify-center'>
-            <div className='w-1/2'>
-                {
-                    bookingLocation
-                        ? <Map bookingLocation={bookingLocation} />
-                        : <h1>No location found!</h1>
-                }
-            </div>
-        </div>
+        <CommonLayout navShouldShow={false}>
+
+        </CommonLayout>
     )
 }
 

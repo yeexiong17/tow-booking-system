@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Button, Stack, TextInput, Space} from '@mantine/core'
+import { Button, Stack, TextInput, Space } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
 import { useNavigate } from 'react-router-dom'
 
@@ -10,7 +10,7 @@ const VehicleDetails = () => {
     const [vehicleModel, setModel] = useState('')
     const [vehicleColor, setColor] = useState('')
     const [vehicleNumPlate, setNumPlate] = useState('')
-    const navigate = useNavigate();
+    const navigate = useNavigate()
 
     const handleVehicleDetails = async () => {
 
@@ -28,9 +28,9 @@ const VehicleDetails = () => {
                 color: 'red'
             })
             return
-        } 
-        navigate('/payment') //('/booking-details')
-        
+        }
+        navigate('/payment')
+
     }
 
     return (
@@ -77,10 +77,10 @@ const VehicleDetails = () => {
                     />
 
                     <Space h="md" />
-                    <Button className='w-full' onClick={() => {handleVehicleDetails()}}>Next</Button>
+                    <Button className='w-full' onClick={() => { handleVehicleDetails() }}>Next</Button>
                 </Stack>
             </Stack>
-        </CommonLayout >
+        </CommonLayout>
     )
 }
 
