@@ -34,49 +34,50 @@ const NavbarLink = ({ icon: Icon, label, active, onClick, link }) => {
     )
 }
 
-const userNavData = [
-    { link: '/home', icon: IconHome2, label: 'Home' },
-    { link: '/history', icon: IconHistory, label: 'History' },
-    { link: '/profile', icon: IconUser, label: 'Profile' },
-]
-
 const Navbar = () => {
     const location = useLocation()
-    const [active, setActive] = useState(0)
+    const [active, setActive] = useState()
     const [desktopActive, setDesktopActive] = useState()
-    const [desktopData, setDesktopData] = useState([])
+    const [navData, setNavData] = useState([])
     const [isAdmin, setIsAdmin] = useState(false)
     const { auth, signOut } = useAuth()
 
     useEffect(() => {
         setDesktopActive(location.pathname)
         if (auth && (auth.user_metadata.role === 'superadmin')) {
-            setDesktopData([
+            setNavData([
                 { link: '/manage-admin', label: 'Manage Admin', icon: IconUserCog }
             ])
 
             setIsAdmin(true)
         }
         else if (auth && (auth.user_metadata.role === 'admin')) {
-            setDesktopData([
+            setNavData([
                 { link: '/admin-dashboard', label: 'Dashboard', icon: IconLayoutDashboard },
                 { link: '/tow-driver-application', label: 'Tow Driver Application', icon: IconUserPlus },
             ])
 
             setIsAdmin(true)
         }
+        else if (auth && (auth.user_metadata.role === 'user')) {
+            setNavData([
+                { link: '/home', label: 'Home', icon: IconHome2 },
+                { link: '/history', label: 'History', icon: IconHistory },
+                { link: '/profile', label: 'Profile', icon: IconUser },
+            ])
+        }
     }, [])
 
-    const links = userNavData.map((link, index) => (
+    const links = navData.map((link, index) => (
         <NavbarLink
             {...link}
             key={link.label}
-            active={index === active}
+            active={location.pathname == link.link}
             onClick={() => setActive(index)}
         />
     ))
 
-    const desktopLinks = desktopData.map((item, index) => (
+    const desktopLinks = navData.map((item, index) => (
         <Link
             to={item.link}
             key={item.label}
