@@ -4,7 +4,8 @@
   "private": true,
   "dependencies": {
     "@mantine/carousel": "^7.15.2",
-    "@mantine/core": "^7.15.1",
+    "@mantine/charts": "^7.15.2",
+    "@mantine/core": "^7.15.2",
     "@mantine/hooks": "^7.15.1",
     "@mantine/notifications": "^7.15.2",
     "@supabase/supabase-js": "^2.47.0",
@@ -21,6 +22,7 @@
     "react-phone-input-2": "^2.15.1",
     "react-router-dom": "^7.0.2",
     "react-scripts": "5.0.1",
+    "recharts": "^2.15.0",
     "web-vitals": "^2.1.4"
   },
   "scripts": {

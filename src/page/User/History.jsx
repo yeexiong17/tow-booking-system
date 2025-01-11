@@ -37,7 +37,7 @@ const History = () => {
                 <Card padding="md" radius="md" withBorder>
                     <Card.Section>
                         <Image
-                            src="https://toyota.page/wp-content/uploads/2023/01/Vios-G-TSS-Type-Car-Front.jpg"
+                            src="https://sharetribe.imgix.net/5c6aae77-8bfa-446f-98b8-3c28a36f52c6/5ef0bdef-60d9-4ffd-a1f9-8afb4f5e82d2?auto=format&fit=clip&h=2400&w=2400&s=c22bb5914b1cbdcfd07ecc08e3586bf6"
                             height={150}
                             fit="contain"
                         />
