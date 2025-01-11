@@ -68,6 +68,7 @@ const Feedback = () => {
                 />
             <Stack>
                 <Button onClick={() => { handleFeedback() }} size="md" radius="md">Submit Feedback</Button>
+                <Button onClick={() => navigate('/home')} size="md" radius="md">Cancel</Button>
             </Stack>
         </CommonLayout>
     );

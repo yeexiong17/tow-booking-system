@@ -30,7 +30,6 @@ const Home = () => {
                     src={Booking2}
                 />
                 <Button variant="filled" onClick={() => navigate('/vehicle-details')} size="md" radius="md">Request Towing</Button>
-                <Button onClick={() => signOut()}>Log Out</Button>
             </Stack>
         </CommonLayout>
     )
