@@ -160,8 +160,8 @@ const TowDriverApplication = () => {
                                     })}
                                 />
                                 <div>
-                                    <Text className='font-bold'><span className='font-bold'>Model: </span>Toyota Vios</Text>
-                                    <Text><span className='font-bold'>Plate Number: </span>ABC1234</Text>
+                                    <Text><span className='font-bold'>Full Name: </span>John Doe</Text>
+                                    <Text className='font-bold'><span className='font-bold'>Identification Number: </span>0401011473384</Text>
                                 </div>
                             </Stack>
                         </Card>
@@ -178,10 +178,6 @@ const TowDriverApplication = () => {
                                         }
                                     })}
                                 />
-                                <div>
-                                    <Text className='font-bold'><span className='font-bold'>Model: </span>Toyota Vios</Text>
-                                    <Text><span className='font-bold'>Plate Number: </span>ABC1234</Text>
-                                </div>
                             </Stack>
                         </Card>
                         <Card shadow="xs" padding="sm" radius="md" withBorder>
