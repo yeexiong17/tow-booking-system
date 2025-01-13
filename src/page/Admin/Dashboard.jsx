@@ -77,6 +77,8 @@ const Dashboard = () => {
     })
     return (
         <CommonLayout>
+            <p className='font-bold text-2xl'>Dashboard</p>
+
             <div className={classes.root}>
                 <SimpleGrid cols={{ base: 1, xs: 2, md: 4 }}>{stats}</SimpleGrid>
             </div>

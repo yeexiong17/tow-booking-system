@@ -7,18 +7,18 @@ import { useAuth } from './Context'
 import ProtectedRoute from './components/ProtectedRoute'
 import Public from './page/Public'
 import Home from './page/Home'
-import BookingDetails from './page/User/BookingDetails'
 import SignUp from './page/SignUp'
 import Login from './page/Login'
 import Dashboard from './page/Admin/Dashboard'
 import VehicleDetails from './page/User/VehicleDetails'
 import Payment from './page/User/Payment'
-import Profile from './page/User/Profile'
+import Profile from './page/Profile'
 import Feedback from './page/Feedback'
 import ManageAdmin from './page/Superadmin/ManageAdmin'
 import AdminSetting from './page/AdminSetting'
 import TowDriverApplication from './page/Admin/TowDriverApplication'
 import History from './page/User/History'
+import TowBooking from './page/Tow/TowBooking'
 
 function App() {
   const [loading, setLoading] = useState(true)
@@ -105,13 +105,36 @@ function App() {
                     </ProtectedRoute>
                   }
                 />
+                <Route
+                  path="/admin-setting"
+                  element={
+                    <ProtectedRoute>
+                      <AdminSetting />
+                    </ProtectedRoute>
+                  }
+                />
               </>
             ) : auth?.user_metadata?.role === 'tow' ? (
               <>
                 <Route
                   path="/*"
                   element={
+                    <Navigate to="/tow-booking" replace />
+                  }
+                />
+                <Route
+                  path="/tow-booking"
+                  element={
                     <ProtectedRoute>
+                      <TowBooking />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/profile"
+                  element={
+                    <ProtectedRoute>
+                      <Profile />
                     </ProtectedRoute>
                   }
                 />
@@ -138,14 +161,6 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <History />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/booking-details"
-                  element={
-                    <ProtectedRoute>
-                      <BookingDetails />
                     </ProtectedRoute>
                   }
                 />

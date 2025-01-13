@@ -59,6 +59,12 @@ const Navbar = () => {
 
             setIsAdmin(true)
         }
+        else if (auth && (auth.user_metadata.role === 'tow')) {
+            setNavData([
+                { link: '/tow-booking', label: 'Booking', icon: IconHistory },
+                { link: '/profile', label: 'Profile', icon: IconUser },
+            ])
+        }
         else if (auth && (auth.user_metadata.role === 'user')) {
             setNavData([
                 { link: '/home', label: 'Home', icon: IconHome2 },

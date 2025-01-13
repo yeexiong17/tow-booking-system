@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import { Button, Card, Drawer, Group, Image, Space, Text } from "@mantine/core";
-import CommonLayout from "../../components/CommonLayout";
+import CommonLayout from "../components/CommonLayout";
 import { useDisclosure } from "@mantine/hooks";
-import { useAuth } from "../../Context";
+import { useAuth } from "../Context";
 import { useNavigate } from "react-router-dom";
 
 const Profile = () => {
@@ -39,7 +39,7 @@ const Profile = () => {
                 <Card padding="md" radius="md" withBorder>
                     <Card.Section>
                         <Image
-                            src= 'https://static.vecteezy.com/system/resources/thumbnails/002/387/693/small_2x/user-profile-icon-free-vector.jpg'// {`${user_metadata.profile_picture}`}
+                            src='https://static.vecteezy.com/system/resources/thumbnails/002/387/693/small_2x/user-profile-icon-free-vector.jpg'// {`${user_metadata.profile_picture}`}
                             height={150}
                             fit="contain"
                         />
