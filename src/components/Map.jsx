@@ -4,20 +4,33 @@ import { useEffect, useRef, useState } from "react"
 
 const Map = ({ bookingLocation }) => {
 
-    const { booking_id, latitude, longitude } = bookingLocation[bookingLocation.length - 1]
+    // const { booking_id, latitude, longitude } = bookingLocation[bookingLocation.length - 1]
 
-    const markerIcon = L.icon({ iconUrl: "/images/leaflet/marker-icon.png" })
+    const blueMarker = L.icon({ iconUrl: "/images/leaflet/map-marker-blue.png" })
+    const towMarker = L.icon({ iconUrl: "/images/leaflet/tow-truck.png" })
+
+    let latitudeUser = 3.1385027
+    let longitudeUser = 101.6050874
+
+    let latitudeTow = 3.1385027
+    let longitudeTow = 101.6066874
 
     return (
-        <div className="h-96">
-            <MapContainer className="h-full" center={[latitude, longitude]} zoom={80} scrollWheelZoom={false}>
+        <div className="h-80">
+            <MapContainer className="h-full" center={[latitudeUser, longitudeUser]} zoom={20} scrollWheelZoom={false}>
                 <TileLayer
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
-                <Marker position={[latitude, longitude]} icon={markerIcon}>
+                <Marker position={[latitudeUser, longitudeUser]} icon={blueMarker}>
                     <Popup>
-                        <p>{latitude}, {longitude}</p>
+                        <p>{latitudeUser}, {longitudeUser}</p>
+                    </Popup>
+                </Marker>
+
+                <Marker position={[latitudeTow, longitudeTow]} icon={towMarker}>
+                    <Popup>
+                        <p>{latitudeTow}, {longitudeTow}</p>
                     </Popup>
                 </Marker>
             </MapContainer>
