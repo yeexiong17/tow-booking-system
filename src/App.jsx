@@ -20,6 +20,8 @@ import AdminSetting from './page/AdminSetting'
 import TowDriverApplication from './page/Admin/TowDriverApplication'
 import History from './page/User/History'
 import TowBooking from './page/Tow/TowBooking'
+import ManageUserAndTow from './page/Admin/ManageUserAndTow'
+import Report from './page/Admin/Report'
 
 function App() {
   const [loading, setLoading] = useState(true)
@@ -99,10 +101,26 @@ function App() {
                   }
                 />
                 <Route
+                  path="/manage-user-tow"
+                  element={
+                    <ProtectedRoute>
+                      <ManageUserAndTow />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
                   path="/tow-driver-application"
                   element={
                     <ProtectedRoute>
                       <TowDriverApplication />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin-report"
+                  element={
+                    <ProtectedRoute>
+                      <Report />
                     </ProtectedRoute>
                   }
                 />
