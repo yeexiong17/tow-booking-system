@@ -10,6 +10,8 @@ import {
     IconUserCog,
     IconSettings,
     IconUserPlus,
+    IconUsers,
+    IconClipboardData,
 } from '@tabler/icons-react'
 
 import classes from '../styles/Navbar.module.css'
@@ -55,6 +57,8 @@ const Navbar = () => {
             setNavData([
                 { link: '/admin-dashboard', label: 'Dashboard', icon: IconLayoutDashboard },
                 { link: '/tow-driver-application', label: 'Tow Driver Application', icon: IconUserPlus },
+                { link: '/manage-user-tow', label: 'Manage User & Tow', icon: IconUsers },
+                { link: '/admin-report', label: 'Report', icon: IconClipboardData },
             ])
 
             setIsAdmin(true)
