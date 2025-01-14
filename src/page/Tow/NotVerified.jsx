@@ -3,6 +3,7 @@ import CommonLayout from '../../components/CommonLayout'
 import { Button, FileInput, Space, Stack, TextInput } from '@mantine/core'
 import { useAuth } from '../../Context'
 import { useNavigate } from 'react-router-dom'
+import { supabase } from '../../supabase'
 
 const NotVerified = () => {
 
@@ -10,6 +11,9 @@ const NotVerified = () => {
     const navigate = useNavigate()
 
     const onSubmitForm = () => {
+        const { data, error } = supabase.auth.updateUser({
+            data: { verified: 'progress' }
+        })
         navigate('/wait-verify')
     }
 

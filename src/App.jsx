@@ -136,7 +136,7 @@ function App() {
                 />
               </>
             ) : auth?.user_metadata?.role === 'tow' ? (
-              auth?.user_metadata?.verified == true ? (
+              auth?.user_metadata?.verified == "true" ? (
                 <>
                   <Route
                     path="/*"
@@ -157,6 +157,23 @@ function App() {
                     element={
                       <ProtectedRoute>
                         <Profile />
+                      </ProtectedRoute>
+                    }
+                  />
+                </>
+              ) : auth?.user_metadata?.verified == "progress" ? (
+                <>
+                  <Route
+                    path="/*"
+                    element={
+                      <Navigate to="/wait-verify" replace />
+                    }
+                  />
+                  <Route
+                    path="/wait-verify"
+                    element={
+                      <ProtectedRoute>
+                        <WaitVerify />
                       </ProtectedRoute>
                     }
                   />
