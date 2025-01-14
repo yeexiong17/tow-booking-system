@@ -22,6 +22,8 @@ import History from './page/User/History'
 import TowBooking from './page/Tow/TowBooking'
 import ManageUserAndTow from './page/Admin/ManageUserAndTow'
 import Report from './page/Admin/Report'
+import NotVerified from './page/Tow/NotVerified'
+import WaitVerify from './page/Tow/WaitVerify'
 
 function App() {
   const [loading, setLoading] = useState(true)
@@ -134,30 +136,57 @@ function App() {
                 />
               </>
             ) : auth?.user_metadata?.role === 'tow' ? (
-              <>
-                <Route
-                  path="/*"
-                  element={
-                    <Navigate to="/tow-booking" replace />
-                  }
-                />
-                <Route
-                  path="/tow-booking"
-                  element={
-                    <ProtectedRoute>
-                      <TowBooking />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/profile"
-                  element={
-                    <ProtectedRoute>
-                      <Profile />
-                    </ProtectedRoute>
-                  }
-                />
-              </>
+              auth?.user_metadata?.verified == true ? (
+                <>
+                  <Route
+                    path="/*"
+                    element={
+                      <Navigate to="/tow-booking" replace />
+                    }
+                  />
+                  <Route
+                    path="/tow-booking"
+                    element={
+                      <ProtectedRoute>
+                        <TowBooking />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/profile"
+                    element={
+                      <ProtectedRoute>
+                        <Profile />
+                      </ProtectedRoute>
+                    }
+                  />
+                </>
+              ) : (
+                <>
+                  <Route
+                    path="/*"
+                    element={
+                      <Navigate to="/not-verified" replace />
+                    }
+                  />
+                  <Route
+                    path="/not-verified"
+                    element={
+                      <ProtectedRoute>
+                        <NotVerified />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/wait-verify"
+                    element={
+                      <ProtectedRoute>
+                        <WaitVerify />
+                      </ProtectedRoute>
+                    }
+                  />
+                </>
+              )
             ) : (
               <>
                 {/* Protected Routes */}
