@@ -9,28 +9,25 @@ const Map = ({ bookingLocation }) => {
     const blueMarker = L.icon({ iconUrl: "/images/leaflet/map-marker-blue.png" })
     const towMarker = L.icon({ iconUrl: "/images/leaflet/tow-truck.png" })
 
-    let latitudeUser = 3.1385027
-    let longitudeUser = 101.6050874
-
-    let latitudeTow = 3.1385027
-    let longitudeTow = 101.6066874
+    const fromLocation = bookingLocation[0];
+    const toLocation = bookingLocation[1];
 
     return (
         <div className="h-80">
-            <MapContainer className="h-full" center={[latitudeUser, longitudeUser]} zoom={20} scrollWheelZoom={false}>
+            <MapContainer className="h-full" center={[fromLocation.latitude, fromLocation.longitude]} zoom={20} scrollWheelZoom={false}>
                 <TileLayer
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
-                <Marker position={[latitudeUser, longitudeUser]} icon={blueMarker}>
+                <Marker position={[fromLocation.latitude, fromLocation.longitude]} icon={blueMarker}>
                     <Popup>
-                        <p>{latitudeUser}, {longitudeUser}</p>
+                        From: {fromLocation.latitude}, {fromLocation.longitude}
                     </Popup>
                 </Marker>
 
-                <Marker position={[latitudeTow, longitudeTow]} icon={towMarker}>
+                <Marker position={[toLocation.latitude, toLocation.longitude]} icon={towMarker}>
                     <Popup>
-                        <p>{latitudeTow}, {longitudeTow}</p>
+                        To: {toLocation.latitude}, {toLocation.longitude}
                     </Popup>
                 </Marker>
             </MapContainer>

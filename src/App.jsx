@@ -11,6 +11,7 @@ import SignUp from './page/SignUp'
 import Login from './page/Login'
 import Dashboard from './page/Admin/Dashboard'
 import VehicleDetails from './page/User/VehicleDetails'
+import LocationDetails from './page/User/LocationDetails'
 import Payment from './page/User/Payment'
 import Profile from './page/Profile'
 import Feedback from './page/Feedback'
@@ -193,6 +194,14 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <Profile />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/location-details"
+                  element={
+                    <ProtectedRoute>
+                      <LocationDetails />
                     </ProtectedRoute>
                   }
                 />

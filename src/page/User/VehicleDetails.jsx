@@ -31,7 +31,7 @@ const VehicleDetails = () => {
             })
             return
         }
-        navigate('/payment')
+        navigate('/location-details')
 
     }
 

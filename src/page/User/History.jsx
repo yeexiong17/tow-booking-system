@@ -17,6 +17,16 @@ const History = () => {
         "Canceled": <Badge size='sm' color="red">Canceled</Badge>,
     }
 
+    const fromLocation = {
+        latitude : 3.1385027,
+        longitude: 101.6050874,
+    };
+
+    const toLocation = {
+        latitude: 3.1385027,
+        longitude: 101.6050874,
+    };
+
     return (
         <CommonLayout>
             <Drawer position='bottom' size='100%' opened={opened} onClose={close} title="Booking Details"
@@ -85,7 +95,7 @@ const History = () => {
                             </Flex>
                         </div>
 
-                        <Map />
+                        <Map bookingLocation={[fromLocation, toLocation]} />
                     </Stack>
                 </Card>
 
