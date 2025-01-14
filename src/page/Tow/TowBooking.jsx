@@ -131,7 +131,7 @@ const TowBooking = () => {
 
             <Stack>
                 <Text fw="bold" size="xl" mb="sm">
-                    History
+                    Bookings
                 </Text>
                 <ScrollArea>
                     {/* In Progress Cards */}
