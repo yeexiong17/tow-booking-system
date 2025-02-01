@@ -10,9 +10,6 @@ import Home from './page/Home'
 import SignUp from './page/SignUp'
 import Login from './page/Login'
 import Dashboard from './page/Admin/Dashboard'
-import VehicleDetails from './page/User/VehicleDetails'
-import LocationDetails from './page/User/LocationDetails'
-import Payment from './page/User/Payment'
 import Profile from './page/Profile'
 import Feedback from './page/Feedback'
 import ManageAdmin from './page/Superadmin/ManageAdmin'
@@ -24,13 +21,14 @@ import ManageUserAndTow from './page/Admin/ManageUserAndTow'
 import Report from './page/Admin/Report'
 import NotVerified from './page/Tow/NotVerified'
 import WaitVerify from './page/Tow/WaitVerify'
+import RequestTow from './page/User/RequestTow'
 
 function App() {
   const [loading, setLoading] = useState(true)
   const { auth, setAuth, setUserData } = useAuth()
 
   useEffect(() => {
-    supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session) {
         console.log(session.user)
         setAuth(session.user)
@@ -41,6 +39,10 @@ function App() {
       }
       setLoading(false)
     })
+
+    return () => {
+      authListener.subscription.unsubscribe()
+    }
   }, [])
 
   return (
@@ -230,21 +232,14 @@ function App() {
                   }
                 />
                 <Route
-                  path="/vehicle-details"
+                  path="/request-tow"
                   element={
                     <ProtectedRoute>
-                      <VehicleDetails />
+                      <RequestTow />
                     </ProtectedRoute>
                   }
                 />
-                <Route
-                  path="/payment"
-                  element={
-                    <ProtectedRoute>
-                      <Payment />
-                    </ProtectedRoute>
-                  }
-                />
+
                 <Route
                   path="/feedback"
                   element={
@@ -258,14 +253,6 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <Profile />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/location-details"
-                  element={
-                    <ProtectedRoute>
-                      <LocationDetails />
                     </ProtectedRoute>
                   }
                 />

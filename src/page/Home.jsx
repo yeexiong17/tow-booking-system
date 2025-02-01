@@ -29,7 +29,7 @@ const Home = () => {
                     radius="md"
                     src={Booking2}
                 />
-                <Button variant="filled" onClick={() => navigate('/vehicle-details')} size="md" radius="md">Request Towing</Button>
+                <Button variant="filled" onClick={() => navigate('/request-tow')} size="md" radius="md">Request Towing</Button>
             </Stack>
         </CommonLayout>
     )

@@ -18,3 +18,14 @@ export const convertToMalaysiaTime = (utcTimestamp) => {
 
     return formattedTime
 }
+
+export const toCamelCase = (string) => {
+    return string
+        .replace(/[^a-zA-Z0-9\s-_]/g, '')
+        .toLowerCase()
+        .split(/[\s-_]+/)
+        .map((word, index) =>
+            index === 0 ? word : word.charAt(0).toUpperCase() + word.slice(1)
+        )
+        .join('')
+}
