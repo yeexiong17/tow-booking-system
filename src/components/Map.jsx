@@ -4,13 +4,11 @@ import { useEffect, useRef, useState } from "react"
 
 const Map = ({ bookingLocation }) => {
 
-    // const { booking_id, latitude, longitude } = bookingLocation[bookingLocation.length - 1]
-
     const blueMarker = L.icon({ iconUrl: "/images/leaflet/map-marker-blue.png" })
     const towMarker = L.icon({ iconUrl: "/images/leaflet/tow-truck.png" })
 
-    const fromLocation = bookingLocation[0];
-    const toLocation = bookingLocation[1];
+    const fromLocation = bookingLocation[0]
+    const toLocation = bookingLocation[1]
 
     return (
         <div className="h-80">

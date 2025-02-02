@@ -108,7 +108,7 @@ const RequestTow = () => {
                     status: 'Pending',
                     from_address: locationDetails.fromCoordinates,
                     to_address: locationDetails.toCoordinates,
-                    car_photo_url,
+                    vehicle_image_url: car_photo_url,
                     vehicle_type: vehicleDetails.type,
                     vehicle_model: vehicleDetails.model,
                     vehicle_color: vehicleDetails.color,

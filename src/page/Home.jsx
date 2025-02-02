@@ -11,7 +11,7 @@ const Home = () => {
     const { signOut, userData } = useAuth()
     const [hasPhone, setHasPhone] = useState(true)
     const { user_metadata } = userData
-    const navigate = useNavigate();
+    const navigate = useNavigate()
 
     useEffect(() => {
         if (userData.phone.length > 0) {

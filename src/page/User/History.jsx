@@ -1,14 +1,22 @@
-import { Badge, Button, Card, Divider, Drawer, Flex, Group, Image, ScrollArea, Space, Stack, Text } from '@mantine/core'
+import { useState, useEffect } from 'react'
+
+import { Badge, Card, Drawer, Flex, Group, Image, ScrollArea, Space, Stack, Text } from '@mantine/core'
 import CommonLayout from '../../components/CommonLayout'
 import { Link, useNavigate } from 'react-router-dom'
-import { IconArrowNarrowRight, IconMapPin, IconMapPinFilled } from '@tabler/icons-react'
+import { IconArrowNarrowRight, IconMapPinFilled } from '@tabler/icons-react'
 import { useDisclosure } from '@mantine/hooks'
 import Map from '../../components/Map'
+import { supabase } from '../../supabase'
+import { notifications } from '@mantine/notifications'
+import { useAuth } from '../../Context'
+import { convertToMalaysiaTime } from '../../helpers/HelperFunction'
 
 const History = () => {
 
     const [opened, { open, close }] = useDisclosure(false)
-    const navigate = useNavigate()
+    const [bookingData, setBookingData] = useState([])
+    const { userData } = useAuth()
+    const [selectedData, setSelectedData] = useState({})
 
     const allBadge = {
         "Pending": <Badge size='sm' color="blue">Pending</Badge>,
@@ -27,6 +35,34 @@ const History = () => {
         longitude: 101.6050874,
     }
 
+    useEffect(() => {
+        fetchBookingData()
+    }, [])
+
+    const fetchBookingData = async () => {
+        try {
+            const { data, error } = await supabase
+                .from('bookings')
+                .select()
+                .eq('user_id', userData.id)
+
+            if (error) throw new Error(error)
+
+            setBookingData(data)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    const handleDrawerOpen = (index) => {
+
+        const data = bookingData[index]
+
+        console.log(data)
+        setSelectedData(data)
+        open()
+    }
+
     return (
         <CommonLayout>
             <Drawer position='bottom' size='100%' opened={opened} onClose={close} title="Booking Details"
@@ -39,16 +75,16 @@ const History = () => {
             >
                 <Card padding="md" radius="md" withBorder>
                     <Stack>
-                        <Text size="sm" fw={500}>Status: <span className='font-normal'>{allBadge["In progress"]}</span></Text>
-                        <Text size="sm" fw={500}>Created At: <span className='font-normal'>08/01/2025, 14:30:00</span></Text>
-                        <Text size="sm" fw={500}>Completed At: <span className='font-normal'>-</span></Text>
+                        <Text size="sm" fw={500}>Status: <span className='font-normal'>{allBadge[selectedData.status]}</span></Text>
+                        <Text size="sm" fw={500}>Created At: <span className='font-normal'>{convertToMalaysiaTime(selectedData.created_at)}</span></Text>
+                        <Text size="sm" fw={500}>Completed At: <span className='font-normal'>{selectedData.completed_at ? convertToMalaysiaTime(selectedData.completed_at) : '-'}</span></Text>
                     </Stack>
                 </Card>
                 <Space h="lg" />
                 <Card padding="md" radius="md" withBorder>
                     <Card.Section>
                         <Image
-                            src="https://sharetribe.imgix.net/5c6aae77-8bfa-446f-98b8-3c28a36f52c6/5ef0bdef-60d9-4ffd-a1f9-8afb4f5e82d2?auto=format&fit=clip&h=2400&w=2400&s=c22bb5914b1cbdcfd07ecc08e3586bf6"
+                            src={selectedData.vehicle_image_url}
                             height={150}
                             fit="contain"
                         />
@@ -58,10 +94,10 @@ const History = () => {
                         <Text fw={700}>Vehicle Details:</Text>
                     </Group>
 
-                    <Text size="sm" fw={500}>Type: <span className='font-normal'>Sedan</span></Text>
-                    <Text size="sm" fw={500}>Model: <span className='font-normal'>Toyota Vios</span></Text>
-                    <Text size="sm" fw={500}>Color: <span className='font-normal'>White</span></Text>
-                    <Text size="sm" fw={500}>Plate: <span className='font-normal'>ABC1234</span></Text>
+                    <Text size="sm" fw={500}>Type: <span className='font-normal'>{selectedData.vehicle_type}</span></Text>
+                    <Text size="sm" fw={500}>Model: <span className='font-normal'>{selectedData.vehicle_model}</span></Text>
+                    <Text size="sm" fw={500}>Color: <span className='font-normal'>{selectedData.vehicle_color}</span></Text>
+                    <Text size="sm" fw={500}>Plate: <span className='font-normal'>{selectedData.vehicle_plate}</span></Text>
                 </Card>
                 <Space h="lg" />
                 <Card padding="md" radius="md" withBorder>
@@ -95,7 +131,7 @@ const History = () => {
                             </Flex>
                         </div>
 
-                        <Map bookingLocation={[fromLocation, toLocation]} />
+                        <Map bookingLocation={[selectedData.from_coordinates, selectedData.to_coordinates]} />
                     </Stack>
                 </Card>
 
@@ -106,38 +142,45 @@ const History = () => {
             <Stack>
                 <p className="font-bold text-2xl text-neutral-800 mb-5">History</p>
                 <ScrollArea className='h-full'>
-                    <Card shadow="xs" padding="md" radius="md" withBorder
-                        onClick={() => open()}
-                        styles={() => ({
-                            root: {
-                                marginBottom: '10px',
-                            }
-                        })}
-                    >
-                        <Stack>
-                            {
-                                allBadge["Completed"]
-                            }
-                            <Flex>
-                                <Text size='sm' lineClamp={2}>
-                                    Persiaran Multimedia, 63100 Cyberjaya, Selangor to Jalan Ayer Keroh Lama, 75450 Bukit Beruang, Melaka
-                                </Text>
-                                <Space w="md" />
-                                <Text className='text-nowrap'>RM 100</Text>
-                            </Flex>
-                            <Flex>
-                                <Text size='sm' c='dimmed'>08/01/2025, 14:30:00</Text>
-                                <Link
-                                    className='flex items-center ml-auto text-blue-600'
+                    {
+                        bookingData.length > 0
+                            ? bookingData.map((booking, index) => (
+                                <Card key={index} shadow="xs" padding="md" radius="md" withBorder
+                                    onClick={() => handleDrawerOpen(index)}
+                                    styles={() => ({
+                                        root: {
+                                            marginBottom: '10px',
+                                        }
+                                    })}
                                 >
-                                    <Text size='sm' fw={500}>
-                                        View Details
-                                    </Text>
-                                    <IconArrowNarrowRight stroke={2} />
-                                </Link>
-                            </Flex>
-                        </Stack>
-                    </Card>
+                                    <Stack>
+                                        {
+                                            allBadge[booking.status]
+                                        }
+                                        <Flex>
+                                            <Text size='sm' lineClamp={2}>
+                                                Persiaran Multimedia, 63100 Cyberjaya, Selangor to Jalan Ayer Keroh Lama, 75450 Bukit Beruang, Melaka
+                                            </Text>
+                                            <Space w="md" />
+                                            <Text className='text-nowrap'>RM 100</Text>
+                                        </Flex>
+                                        <Flex>
+                                            <Text size='sm' c='dimmed'>{convertToMalaysiaTime(booking.created_at)}</Text>
+                                            <Link
+                                                className='flex items-center ml-auto text-blue-600'
+                                            >
+                                                <Text size='sm' fw={500}>
+                                                    View Details
+                                                </Text>
+                                                <IconArrowNarrowRight stroke={2} />
+                                            </Link>
+                                        </Flex>
+                                    </Stack>
+                                </Card>
+                            ))
+                            : null
+                    }
+
                 </ScrollArea>
             </Stack>
 
