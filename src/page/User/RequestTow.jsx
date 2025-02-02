@@ -6,10 +6,13 @@ import LocationDetails from '../../components/LocationDetails'
 import { notifications } from '@mantine/notifications'
 import { useNavigate } from 'react-router-dom'
 import Payment from '../../components/Payment'
+import { useAuth } from '../../Context'
+import { supabase } from '../../supabase'
 
 const RequestTow = () => {
 
     const [active, setActive] = useState(0)
+    const { toggle, userData } = useAuth()
     const navigate = useNavigate()
 
     // Vehicle Details
@@ -20,6 +23,8 @@ const RequestTow = () => {
         numberPlate: '',
         vehicleImage: null
     })
+
+    // Location Details
     const [locationDetails, setLocationDetails] = useState({
         fromLocation: '',
         fromCoordinates: null,
@@ -52,7 +57,35 @@ const RequestTow = () => {
         setActive(nextStep)
     }
 
-    const handlePayment = () => {
+    const generateUniqueFilePath = () => {
+        const shortUserId = userData.id.split("-")[0]
+        const now = new Date().toLocaleString("en-GB", { timeZone: "Asia/Kuala_Lumpur", hour12: false })
+            .replace(/[\/, ]/g, "")
+            .replace(/:/g, "")
+
+        return `${shortUserId}_${now}`
+    }
+
+    const uploadImageToSupabase = async () => {
+
+        let uniqueFileName = generateUniqueFilePath()
+
+        const { uploadData, uploadError } = await supabase
+            .storage
+            .from('bucket')
+            .upload(`booking_vehicle_image/${uniqueFileName}.jpg`, vehicleDetails.vehicleImage, {
+                cacheControl: '3600',
+                upsert: false
+            })
+
+        if (uploadError) throw new Error(uploadError)
+
+        const { data } = supabase.storage.from('bucket').getPublicUrl(`booking_vehicle_image/${uniqueFileName}.jpg`)
+
+        return data.publicUrl
+    }
+
+    const handlePayment = async () => {
         if (!paymentMethod) {
             notifications.show({
                 title: 'Error',
@@ -63,13 +96,47 @@ const RequestTow = () => {
             })
             return
         }
-        notifications.show({
-            title: 'Thank You!',
-            message: 'Transaction Completed.',
-            className: 'w-5/6 ml-auto',
-            position: 'top-right',
-            color: 'green',
-        })
+
+        try {
+            toggle()
+            const car_photo_url = await uploadImageToSupabase()
+
+            const { error } = await supabase
+                .from('bookings')
+                .insert({
+                    user_id: userData.id,
+                    status: 'Pending',
+                    from_address: locationDetails.fromCoordinates,
+                    to_address: locationDetails.toCoordinates,
+                    car_photo_url,
+                    vehicle_type: vehicleDetails.type,
+                    vehicle_model: vehicleDetails.model,
+                    vehicle_color: vehicleDetails.color,
+                    vehicle_plate: vehicleDetails.numberPlate
+                })
+
+            if (error) throw new Error(error)
+
+            notifications.show({
+                title: 'Thank You!',
+                message: 'Transaction Completed.',
+                className: 'w-5/6 ml-auto',
+                position: 'top-right',
+                color: 'green',
+            })
+        } catch (error) {
+            notifications.show({
+                title: 'Transaction Error',
+                message: error,
+                className: 'w-5/6 ml-auto',
+                position: 'top-right',
+                color: 'green',
+            })
+        }
+        finally {
+            toggle()
+        }
+
         navigate('/home')
     }
 
@@ -107,7 +174,7 @@ const RequestTow = () => {
                         <Payment setPaymentMethod={setPaymentMethod} />
                     </Stepper.Completed>
                 </Stepper>
-
+                <Button onClick={() => uploadImageToSupabase()}>Test Upload Image</Button>
                 <Group justify="center" mt="xl">
                     {
                         active > 0 && <Button variant="default" onClick={() => handleStepChange(active - 1)}>Back</Button>
