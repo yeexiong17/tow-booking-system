@@ -62,7 +62,7 @@ const data = [
         job: 'Manager',
         email: 'jeremy@foot.dev',
     },
-];
+]
 
 const TowDriverApplication = () => {
 

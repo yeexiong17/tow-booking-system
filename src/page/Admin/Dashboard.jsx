@@ -45,7 +45,7 @@ const lineChartData = [
         date: 'Mar 26',
         Booking: 20,
     },
-];
+]
 
 const Dashboard = () => {
     const stats = data.map((stat) => {

@@ -1,9 +1,9 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Button, Stack, TextInput } from '@mantine/core';
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { Button, Stack, TextInput } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
 import CommonLayout from '../components/CommonLayout'
-import { IconStar } from '@tabler/icons-react';
+import { IconStar } from '@tabler/icons-react'
 
 const StarRating = ({ rating, setRating }) => {
     return (
@@ -18,14 +18,14 @@ const StarRating = ({ rating, setRating }) => {
                 />
             ))}
         </div>
-    );
-};
+    )
+}
 
 const Feedback = () => {
-    const navigate = useNavigate();
-    const [serviceRating, setServiceRating] = useState('');
-    const [systemRating, setSystemRating] = useState('');
-    const [comments, setComments] = useState('');
+    const navigate = useNavigate()
+    const [serviceRating, setServiceRating] = useState('')
+    const [systemRating, setSystemRating] = useState('')
+    const [comments, setComments] = useState('')
 
     const handleFeedback = () => {
         if (!serviceRating || !systemRating) {
@@ -44,9 +44,9 @@ const Feedback = () => {
             className: 'w-5/6 ml-auto',
             position: 'top-right',
             color: 'green',
-        });
-        navigate('/home');
-    };
+        })
+        navigate('/home')
+    }
 
     return (
         <CommonLayout>
@@ -59,19 +59,19 @@ const Feedback = () => {
                 <p>Rate the System Functioning:</p>
                 <StarRating rating={systemRating} setRating={setSystemRating} />
             </Stack>
-                <TextInput
-                    className="h-20"
-                    label="Comments"
-                    value={comments}
-                    placeholder="Leave Your Comments Here (Optional)"
-                    onChange={(event) => setComments(event.currentTarget.value)}
-                />
+            <TextInput
+                className="h-20"
+                label="Comments"
+                value={comments}
+                placeholder="Leave Your Comments Here (Optional)"
+                onChange={(event) => setComments(event.currentTarget.value)}
+            />
             <Stack>
                 <Button onClick={() => { handleFeedback() }} size="md" radius="md">Submit Feedback</Button>
                 <Button onClick={() => navigate('/home')} size="md" radius="md">Cancel</Button>
             </Stack>
         </CommonLayout>
-    );
-};
+    )
+}
 
-export default Feedback;
+export default Feedback

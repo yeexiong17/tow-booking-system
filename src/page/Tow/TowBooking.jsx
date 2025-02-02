@@ -1,13 +1,13 @@
-import { Badge, Button, Divider, Card, Drawer, Flex, ScrollArea, Space, Stack, Text } from '@mantine/core';
-import CommonLayout from '../../components/CommonLayout';
-import {IconMapPinFilled } from '@tabler/icons-react';
-import { useDisclosure } from '@mantine/hooks';
-import Map from '../../components/Map';
-import { useState } from 'react';
+import { Badge, Button, Divider, Card, Drawer, Flex, ScrollArea, Space, Stack, Text } from '@mantine/core'
+import CommonLayout from '../../components/CommonLayout'
+import { IconMapPinFilled } from '@tabler/icons-react'
+import { useDisclosure } from '@mantine/hooks'
+import Map from '../../components/Map'
+import { useState } from 'react'
 
 const TowBooking = () => {
-    const [opened, { open, close }] = useDisclosure(false);
-    const [currentBooking, setCurrentBooking] = useState(null);
+    const [opened, { open, close }] = useDisclosure(false)
+    const [currentBooking, setCurrentBooking] = useState(null)
 
     const [bookings, setBookings] = useState([
         {
@@ -32,19 +32,23 @@ const TowBooking = () => {
             fromLocation: { latitude: 3.1721, longitude: 101.7007 },
             toLocation: { latitude: 3.1073, longitude: 101.6067 },
         },
-    ]);
+    ])
 
     const allBadge = {
-        Pending: <Badge size="sm" color="blue">Pending</Badge>,
+        // No tow driver being assigned yet
+        'Pending': <Badge size="sm" color="blue">Pending</Badge>,
+        // Tow driver is on the way to pick up the vehicle
         'In progress': <Badge size="sm" color="yellow">In progress</Badge>,
-        Completed: <Badge size="sm" color="green">Completed</Badge>,
-        Canceled: <Badge size="sm" color="red">Canceled</Badge>,
-    };
+        // Everything completed, vehicle delivered to the destination
+        'Completed': <Badge size="sm" color="green">Completed</Badge>,
+        // Booking canceled by the user
+        'Canceled': <Badge size="sm" color="red">Canceled</Badge>,
+    }
 
     const handleOpenDrawer = (booking) => {
-        setCurrentBooking(booking);
-        open();
-    };
+        setCurrentBooking(booking)
+        open()
+    }
 
     const handleFinishBooking = () => {
         if (currentBooking) {
@@ -52,17 +56,17 @@ const TowBooking = () => {
                 b.id === currentBooking.id
                     ? { ...b, status: 'Completed', completedAt: new Date().toLocaleString() }
                     : b
-            );
-            setBookings(updatedBookings);
-            close();
+            )
+            setBookings(updatedBookings)
+            close()
         }
-    };
+    }
 
     const sortedBookings = bookings.sort((a, b) => {
-        if (a.status === 'In progress' && b.status !== 'In progress') return -1;
-        if (a.status !== 'In progress' && b.status === 'In progress') return 1;
-        return new Date(b.createdAt) - new Date(a.createdAt);
-    });
+        if (a.status === 'In progress' && b.status !== 'In progress') return -1
+        if (a.status !== 'In progress' && b.status === 'In progress') return 1
+        return new Date(b.createdAt) - new Date(a.createdAt)
+    })
 
     return (
         <CommonLayout>
@@ -196,7 +200,7 @@ const TowBooking = () => {
                 </ScrollArea>
             </Stack>
         </CommonLayout>
-    );
-};
+    )
+}
 
-export default TowBooking;
+export default TowBooking

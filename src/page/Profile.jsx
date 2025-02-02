@@ -1,25 +1,25 @@
-import { useEffect } from "react";
-import { Button, Card, Drawer, Group, Image, Space, Text } from "@mantine/core";
-import CommonLayout from "../components/CommonLayout";
-import { useDisclosure } from "@mantine/hooks";
-import { useAuth } from "../Context";
-import { useNavigate } from "react-router-dom";
-import { convertToMalaysiaTime } from "../helpers/HelperFunction";
+import { useEffect } from "react"
+import { Button, Card, Drawer, Group, Image, Space, Text } from "@mantine/core"
+import CommonLayout from "../components/CommonLayout"
+import { useDisclosure } from "@mantine/hooks"
+import { useAuth } from "../Context"
+import { useNavigate } from "react-router-dom"
+import { convertToMalaysiaTime } from "../helpers/HelperFunction"
 
 const Profile = () => {
-    const { signOut, userData } = useAuth();
-    const [opened, { open, close }] = useDisclosure(false);
+    const { signOut, userData } = useAuth()
+    const [opened, { open, close }] = useDisclosure(false)
     const { user_metadata } = userData
-    const navigate = useNavigate();
+    const navigate = useNavigate()
 
     useEffect(() => {
-        open();
-    }, [open]);
+        open()
+    }, [open])
 
     const handleClose = () => {
-        close();
-        navigate(-1);
-    };
+        close()
+        navigate(-1)
+    }
 
     return (
         <CommonLayout>
@@ -70,7 +70,7 @@ const Profile = () => {
                 <Button size='md' onClick={() => signOut()} color="blue" fullWidth mt="md" radius="md">Log Out</Button>
             </Drawer>
         </CommonLayout>
-    );
-};
+    )
+}
 
-export default Profile;
+export default Profile

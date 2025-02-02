@@ -26,7 +26,7 @@ import { useDisclosure } from '@mantine/hooks'
 import { convertToMalaysiaTime } from '../../helpers/HelperFunction'
 
 const Th = ({ children, reversed, sorted, onSort }) => {
-    const Icon = sorted ? (reversed ? IconChevronUp : IconChevronDown) : IconSelector;
+    const Icon = sorted ? (reversed ? IconChevronUp : IconChevronDown) : IconSelector
     return (
         <Table.Th className={classes.th}>
             <UnstyledButton onClick={onSort} className={classes.control}>
@@ -65,10 +65,10 @@ const sortData = (data, payload) => {
     return filterData(
         [...data].sort((a, b) => {
             if (payload.reversed) {
-                return b[sortBy].localeCompare(a[sortBy]);
+                return b[sortBy].localeCompare(a[sortBy])
             }
 
-            return a[sortBy].localeCompare(b[sortBy]);
+            return a[sortBy].localeCompare(b[sortBy])
         }),
         payload.search
     )
