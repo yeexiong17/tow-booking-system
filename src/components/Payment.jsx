@@ -1,7 +1,4 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { Button, Stack } from '@mantine/core'
-import { notifications } from '@mantine/notifications'
+import { Stack } from '@mantine/core'
 
 const Payment = ({ setPaymentMethod }) => {
     return (

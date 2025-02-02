@@ -35,7 +35,8 @@ const SignUp = () => {
                 data: {
                     name: trimName,
                     role: role,
-                    email: trimEmail
+                    email: trimEmail,
+                    status: 'active'
                 }
             }
         })
