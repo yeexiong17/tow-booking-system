@@ -21,67 +21,38 @@ import { useAuth } from '../../Context'
 import { notifications } from '@mantine/notifications'
 import { useDisclosure } from '@mantine/hooks'
 
-const data = [
-    {
-        id: '1',
-        avatar:
-            'https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-1.png',
-        name: 'Robert Wolfkisser',
-        job: 'Engineer',
-        email: 'rob_wolf@gmail.com',
-    },
-    {
-        id: '2',
-        avatar:
-            'https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-7.png',
-        name: 'Jill Jailbreaker',
-        job: 'Engineer',
-        email: 'jj@breaker.com',
-    },
-    {
-        id: '3',
-        avatar:
-            'https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-2.png',
-        name: 'Henry Silkeater',
-        job: 'Designer',
-        email: 'henry@silkeater.io',
-    },
-    {
-        id: '4',
-        avatar:
-            'https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-3.png',
-        name: 'Bill Horsefighter',
-        job: 'Designer',
-        email: 'bhorsefighter@gmail.com',
-    },
-    {
-        id: '5',
-        avatar:
-            'https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-10.png',
-        name: 'Jeremy Footviewer',
-        job: 'Manager',
-        email: 'jeremy@foot.dev',
-    },
-]
-
 const TowDriverApplication = () => {
 
     const [towDriverData, setTowDriverData] = useState([])
     const [opened, { open, close }] = useDisclosure(false)
+    const [selectedTowDriver, setSelectedTowDriver] = useState(null)
 
     const { toggle } = useAuth()
 
     useEffect(() => {
-        toggle()
         getAllTow()
-        toggle()
     }, [])
 
     const getAllTow = async () => {
-        const { data, error } = await supabase.from('tow_driver_details').select()
-        console.log(data)
-        // setTowDriverData(data)
-        // setSortedData(data)
+        try {
+            toggle()
+            const { data, error } = await supabase.from('tow_driver_details').select().eq('status', 'pending')
+
+            setTowDriverData(data)
+        } catch (error) {
+
+        } finally {
+            toggle()
+        }
+
+
+    }
+
+    const handleDrawerOpen = (id) => {
+        const selectedTowDriver = towDriverData.find(item => item.id === id)
+        setSelectedTowDriver(selectedTowDriver)
+
+        open()
     }
 
     const handleNewTowDriver = async () => {
@@ -89,20 +60,20 @@ const TowDriverApplication = () => {
 
     }
 
-    const rows = data.map((item) => {
+
+    const rows = towDriverData.map((item) => {
         return (
             <Table.Tr key={item.id} className='hover:bg-neutral-200 hover:cursor-pointer'>
                 <Table.Td>
                     <Group gap="sm">
-                        <Avatar size={26} src={item.avatar} radius={26} />
+                        <Avatar size={26} src={item.face_photo_url} radius={26} />
                         <Text size="sm" fw={500}>
-                            {item.name}
+                            {item.full_name}
                         </Text>
                     </Group>
                 </Table.Td>
-                <Table.Td>{item.email}</Table.Td>
                 <Table.Td>
-                    <Button variant="default" onClick={open}>
+                    <Button variant="default" onClick={() => handleDrawerOpen(item.id)}>
                         View Details
                     </Button>
                 </Table.Td>
@@ -134,15 +105,15 @@ const TowDriverApplication = () => {
                             <Space h="xs" />
                             <Flex className='items-center'>
                                 <Avatar
-                                    src="https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-8.png"
+                                    src={selectedTowDriver?.face_photo_url}
                                     radius="lg"
                                     size="xl"
                                 />
                                 <Space w="md" />
                                 <div className='py-4'>
-                                    <Text><span className='font-bold'>Name: </span>Test 4</Text>
-                                    <Text><span className='font-bold'>Email: </span>test4@gmail.com</Text>
-                                    <Text><span className='font-bold'>Phone: </span>60123456789</Text>
+                                    <Text><span className='font-bold'>Name: </span>{selectedTowDriver?.full_name}</Text>
+                                    <Text><span className='font-bold'>Email: </span>{selectedTowDriver?.email}</Text>
+                                    <Text><span className='font-bold'>Phone: </span>{selectedTowDriver?.phone}</Text>
                                 </div>
                             </Flex>
                         </Card>
@@ -152,7 +123,7 @@ const TowDriverApplication = () => {
                             <Stack className='items-center'>
                                 <Image
                                     radius="md"
-                                    src="https://cdn-icons-png.flaticon.com/512/179/179573.png"
+                                    src={selectedTowDriver?.identification_card_photo_url}
                                     styles={() => ({
                                         root: {
                                             aspectRatio: '3/2',
@@ -160,8 +131,8 @@ const TowDriverApplication = () => {
                                     })}
                                 />
                                 <div>
-                                    <Text><span className='font-bold'>Full Name: </span>John Doe</Text>
-                                    <Text className='font-bold'><span className='font-bold'>Identification Number: </span>0401011473384</Text>
+                                    <Text><span className='font-bold'>Full Name: </span>{selectedTowDriver?.full_name}</Text>
+                                    <Text><span className='font-bold'>Identification Number: </span>{selectedTowDriver?.identification_number}</Text>
                                 </div>
                             </Stack>
                         </Card>
@@ -171,7 +142,7 @@ const TowDriverApplication = () => {
                             <Stack className='items-center'>
                                 <Image
                                     radius="md"
-                                    src="https://cdn-icons-png.flaticon.com/512/179/179573.png"
+                                    src={selectedTowDriver?.license_photo_url}
                                     styles={() => ({
                                         root: {
                                             aspectRatio: '3/2',
@@ -186,7 +157,7 @@ const TowDriverApplication = () => {
                             <Stack className='items-center'>
                                 <Image
                                     radius="md"
-                                    src="https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/images/bg-7.png"
+                                    src={selectedTowDriver?.vehicle_photo_url}
                                     styles={() => ({
                                         root: {
                                             aspectRatio: '3/2',
@@ -194,8 +165,8 @@ const TowDriverApplication = () => {
                                     })}
                                 />
                                 <div>
-                                    <Text className='font-bold'><span className='font-bold'>Model: </span>Toyota Vios</Text>
-                                    <Text><span className='font-bold'>Plate Number: </span>ABC1234</Text>
+                                    <Text><span className='font-bold'>Model: </span>{selectedTowDriver?.vehicle_model}</Text>
+                                    <Text><span className='font-bold'>Plate Number: </span>{selectedTowDriver?.vehicle_plate}</Text>
                                 </div>
                             </Stack>
                         </Card>
@@ -223,7 +194,7 @@ const TowDriverApplication = () => {
                         <Table.Thead>
                             <Table.Tr>
                                 <Table.Th>User</Table.Th>
-                                <Table.Th>Email</Table.Th>
+                                <Table.Th>Action</Table.Th>
                             </Table.Tr>
                         </Table.Thead>
                         <Table.Tbody>{rows}</Table.Tbody>

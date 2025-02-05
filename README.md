@@ -41,6 +41,5 @@ The application uses the following booking statuses:
 
 | Status | Description |
 |--------|-------------|
-| Not Verified | Application is pending approval |
-| Pending | Application is awaiting verification |
+| Pending | Application is pending approval |
 | Verified | Application is approved to provide services |

@@ -19,6 +19,8 @@ const NotVerified = () => {
     const [identificationCardPhoto, setIdentificationCardPhoto] = useState(null)
     const [licensePhoto, setLicensePhoto] = useState(null)
     const [vehiclePhoto, setVehiclePhoto] = useState(null)
+    const [facePhoto, setFacePhoto] = useState(null)
+    const [phoneNumber, setPhoneNumber] = useState('')
 
     // Image Type: vehicle, license, identification
     const generateUniqueFilePath = (imageType) => {
@@ -55,13 +57,15 @@ const NotVerified = () => {
             toggle()
 
             if (!fullName || !vehiclePlate || !vehicleModel || !identificationNumber ||
-                !identificationCardPhoto || !licensePhoto || !vehiclePhoto) {
+                !identificationCardPhoto || !licensePhoto || !vehiclePhoto || !facePhoto ||
+                !phoneNumber) {
                 throw new Error('Please fill in all required fields')
             }
 
             const identificationCardPhotoUrl = await uploadImageToSupabase(identificationCardPhoto, 'identification')
             const licensePhotoUrl = await uploadImageToSupabase(licensePhoto, 'license')
             const vehiclePhotoUrl = await uploadImageToSupabase(vehiclePhoto, 'vehicle')
+            const facePhotoUrl = await uploadImageToSupabase(facePhoto, 'face')
 
             const { error } = await supabase
                 .from('tow_driver_details')
@@ -71,11 +75,15 @@ const NotVerified = () => {
                     vehicle_plate: vehiclePlate,
                     identification_number: identificationNumber,
                     full_name: fullName,
-                    idetification_card_photo_url: identificationCardPhotoUrl,
+                    identification_card_photo_url: identificationCardPhotoUrl,
                     vehicle_photo_url: vehiclePhotoUrl,
                     license_photo_url: licensePhotoUrl,
+                    face_photo_url: facePhotoUrl,
+                    email: userData.email,
+                    phone: phoneNumber,
                     status: 'pending'
                 })
+
 
             if (error) throw new Error(error.message)
 
@@ -87,7 +95,7 @@ const NotVerified = () => {
                 color: 'green'
             })
 
-            navigate('/wait-verify')
+            window.location.reload()
         } catch (error) {
             notifications.show({
                 title: 'Application Submission Failed',
@@ -119,6 +127,15 @@ const NotVerified = () => {
             <Space h={10} />
 
             <TextInput
+                label="Enter your phone number"
+                description="Eg: 60123456789"
+                placeholder="Enter your phone number"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+            />
+            <Space h={10} />
+
+            <TextInput
                 label="Vehicle Plate"
                 description="Eg: ABC1234"
                 placeholder="Enter your vehicle plate"
@@ -142,6 +159,14 @@ const NotVerified = () => {
                 placeholder="Enter your identification number"
                 value={identificationNumber}
                 onChange={(e) => setIdentificationNumber(e.target.value)}
+            />
+            <Space h={10} />
+
+            <FileInput
+                label="Face Photo"
+                description="Upload a clear photo of your face"
+                placeholder="Upload a photo..."
+                onChange={setFacePhoto}
             />
             <Space h={10} />
 

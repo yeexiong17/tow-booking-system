@@ -213,7 +213,7 @@ const ManageAdmin = () => {
                         Create Admin
                     </Button>
                 </Flex>
-                <ScrollArea h={300}>
+                <ScrollArea h={300} type='always'>
                     <Table stickyHeader horizontalSpacing="md" verticalSpacing="xs" miw={700} layout="fixed">
                         <Table.Thead>
                             <Table.Tr>

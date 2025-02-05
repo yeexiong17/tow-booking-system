@@ -57,7 +57,8 @@ function App() {
         .select('*')
         .eq('user_id', userId)
 
-      setTowDriverDetails(data)
+      console.log(data)
+      setTowDriverDetails(data[0])
     } catch (error) {
       console.log(error)
     }
@@ -211,14 +212,6 @@ function App() {
                     element={
                       <ProtectedRoute>
                         <NotVerified />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/wait-verify"
-                    element={
-                      <ProtectedRoute>
-                        <WaitVerify />
                       </ProtectedRoute>
                     }
                   />
