@@ -1,70 +1,46 @@
-# Getting Started with Create React App
+# Tow Service Application
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This is a web application for managing tow services.
 
-## Available Scripts
+## Prerequisites
 
-In the project directory, you can run:
+Before you begin, ensure you have the following installed:
+- Node.js (version 16 or higher)
+- npm (Node Package Manager)
 
-### `npm start`
+## Installation
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+1. Clone the repository: `git clone https://github.com/yeexiong17/tow-booking-system.git`
+2. Navigate to the project directory: `cd tow-booking-system`
+3. Install dependencies: `npm install`
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Running the Application
 
-### `npm test`
+1. Starting the development server: `npm start`
+2. The application will be available at `http://localhost:3000` (or another port if 3000 is in use)
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Booking Status Reference
 
-### `npm run build`
+The application uses the following booking statuses:
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+| Status | Description |
+|--------|-------------|
+| Pending | Initial status when a customer creates a booking |
+| In Progress | When a tow service provider accepts the booking |
+| Completed | Service has been completed successfully |
+| Cancelled | Booking was cancelled by either party |
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Customer Account Status
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+| Status | Description |
+|--------|-------------|
+| Active | Account is verified and can make bookings |
+| Unactive | Unactive account, cannot make bookings |
 
-### `npm run eject`
+## Tow Service Provider Details Status
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+| Status | Description |
+|--------|-------------|
+| Not Verified | Application is pending approval |
+| Pending | Application is awaiting verification |
+| Verified | Application is approved to provide services |

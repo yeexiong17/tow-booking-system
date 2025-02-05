@@ -26,6 +26,7 @@ import RequestTow from './page/User/RequestTow'
 function App() {
   const [loading, setLoading] = useState(true)
   const { auth, setAuth, setUserData } = useAuth()
+  const [towDriverDetails, setTowDriverDetails] = useState(null)
 
   useEffect(() => {
     const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -33,6 +34,10 @@ function App() {
         console.log(session.user)
         setAuth(session.user)
         setUserData(session.user)
+
+        if (session.user.user_metadata.role === 'tow') {
+          getTowDriverDetails(session.user.id)
+        }
       } else {
         setAuth(null)
         setUserData(null)
@@ -44,6 +49,19 @@ function App() {
       authListener.subscription.unsubscribe()
     }
   }, [])
+
+  const getTowDriverDetails = async (userId) => {
+    try {
+      const { data, error } = await supabase
+        .from('tow_driver_details')
+        .select('*')
+        .eq('user_id', userId)
+
+      setTowDriverDetails(data)
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   return (
     <>
@@ -138,7 +156,7 @@ function App() {
                 />
               </>
             ) : auth?.user_metadata?.role === 'tow' ? (
-              auth?.user_metadata?.verified == "true" ? (
+              auth?.user_metadata?.status === 'active' ? (
                 <>
                   <Route
                     path="/*"
@@ -163,7 +181,7 @@ function App() {
                     }
                   />
                 </>
-              ) : auth?.user_metadata?.verified == "progress" ? (
+              ) : towDriverDetails?.status == 'pending' ? (
                 <>
                   <Route
                     path="/*"

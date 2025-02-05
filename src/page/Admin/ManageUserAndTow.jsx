@@ -1,66 +1,58 @@
+import { useEffect, useState } from 'react'
+
 import { IconPencil, IconTrash } from '@tabler/icons-react'
 import { ActionIcon, Anchor, Avatar, Badge, Button, Card, Drawer, Flex, Group, Image, ScrollArea, Space, Stack, Table, Text } from '@mantine/core'
 import CommonLayout from '../../components/CommonLayout'
 import { useDisclosure } from '@mantine/hooks'
-
-const userData = [
-    {
-        avatar:
-            'https://www.iconpacks.net/icons/2/free-user-icon-3296-thumb.png',
-        name: 'Robert Wong',
-        email: 'robert@gmail.com',
-        phone: '+60134529811',
-    },
-    {
-        avatar:
-            'https://www.iconpacks.net/icons/2/free-user-icon-3296-thumb.png',
-        name: 'Kathy',
-        email: 'kathy@gmail.com',
-        phone: '+60124523167',
-    },
-    {
-        avatar:
-            'https://www.iconpacks.net/icons/2/free-user-icon-3296-thumb.png',
-        name: 'Henry',
-        email: 'henry@gmail.com',
-        phone: '+60124513311',
-    },
-]
-
-const towData = [
-    {
-        avatar:
-            'https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-1.png',
-        name: 'Walton Hopkins',
-        email: 'walton@gmail.com',
-        phone: '+60125685492',
-    },
-    {
-        avatar:
-            'https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-7.png',
-        name: 'Dustin Duke',
-        email: 'dustin@gmail.com',
-        phone: '+60117654291',
-    },
-    {
-        avatar:
-            'https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-2.png',
-        name: 'Janis Hanna',
-        email: 'janie@gmail.com',
-        phone: '+60125628496',
-    },
-]
+import { supabase } from '../../supabase'
 
 const ManageUserAndTow = () => {
 
     const [opened, { open, close }] = useDisclosure(false)
+    const [userData, setUserData] = useState([])
+    const [towData, setTowData] = useState([])
 
+    useEffect(() => {
+        fetchUserData()
+        fetchTowData()
+    }, [])
 
-    const userRows = userData.map((item) => (
-        <Table.Tr key={item.name}>
+    const fetchUserData = async () => {
+        try {
+            const { data, error } = await supabase
+                .from('profiles')
+                .select()
+                .eq('role', 'user')
+
+            if (error) throw new Error(error)
+            console.log(data)
+            setUserData(data)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    const fetchTowData = async () => {
+        try {
+            const { data, error } = await supabase
+                .from('profiles')
+                .select()
+                .eq('role', 'tow')
+                .neq('status', 'unverified')
+
+            if (error) throw new Error(error)
+            console.log(data)
+            setTowData(data)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    const userRows = userData.map((item, index) => (
+        <Table.Tr key={index}>
             <Table.Td>
                 <Group gap="sm">
-                    <Avatar size={30} src={item.avatar} radius={30} />
+                    <Avatar size={30} src={item.profile_picture} radius={30} />
                     <Text fz="sm" fw={500}>
                         {item.name}
                     </Text>
@@ -72,7 +64,7 @@ const ManageUserAndTow = () => {
                 </Anchor>
             </Table.Td>
             <Table.Td>
-                <Text fz="sm">{item.phone}</Text>
+                <Text fz="sm">{item?.phone || '-'}</Text>
             </Table.Td>
             <Table.Td>
                 <Group gap={0} justify="flex-end">
@@ -84,11 +76,11 @@ const ManageUserAndTow = () => {
         </Table.Tr>
     ))
 
-    const towRows = towData.map((item) => (
-        <Table.Tr key={item.name}>
+    const towRows = towData.map((item, index) => (
+        <Table.Tr key={index}>
             <Table.Td>
                 <Group gap="sm">
-                    <Avatar size={30} src={item.avatar} radius={30} />
+                    <Avatar size={30} src={item.profile_picture} radius={30} />
                     <Text fz="sm" fw={500}>
                         {item.name}
                     </Text>
@@ -100,7 +92,7 @@ const ManageUserAndTow = () => {
                 </Anchor>
             </Table.Td>
             <Table.Td>
-                <Text fz="sm">{item.phone}</Text>
+                <Text fz="sm">{item?.phone || '-'}</Text>
             </Table.Td>
             <Table.Td>
                 <Group gap={0} justify="flex-end">
@@ -115,12 +107,11 @@ const ManageUserAndTow = () => {
     return (
         <CommonLayout>
             <p className='font-bold text-2xl'>User</p>
-
-            <Table.ScrollContainer minWidth={800}>
-                <Table verticalSpacing="sm">
+            <ScrollArea type='always' h={320} className='px-2 mt-2'>
+                <Table withTableBorder stickyHeader verticalSpacing="sm">
                     <Table.Thead>
                         <Table.Tr>
-                            <Table.Th>User</Table.Th>
+                            <Table.Th>Name</Table.Th>
                             <Table.Th>Email</Table.Th>
                             <Table.Th>Phone</Table.Th>
                             <Table.Th />
@@ -128,14 +119,16 @@ const ManageUserAndTow = () => {
                     </Table.Thead>
                     <Table.Tbody>{userRows}</Table.Tbody>
                 </Table>
-            </Table.ScrollContainer>
-            <Space h={20} />
+            </ScrollArea>
+
+            <Space h={50} />
+
             <p className='font-bold text-2xl'>Tow Driver</p>
-            <Table.ScrollContainer minWidth={800}>
-                <Table verticalSpacing="sm">
+            <ScrollArea type='always' h={320} className='px-2 mt-2'>
+                <Table withTableBorder stickyHeader verticalSpacing="sm">
                     <Table.Thead>
                         <Table.Tr>
-                            <Table.Th>Tow Driver</Table.Th>
+                            <Table.Th>Name</Table.Th>
                             <Table.Th>Email</Table.Th>
                             <Table.Th>Phone</Table.Th>
                             <Table.Th />
@@ -143,7 +136,7 @@ const ManageUserAndTow = () => {
                     </Table.Thead>
                     <Table.Tbody>{towRows}</Table.Tbody>
                 </Table>
-            </Table.ScrollContainer>
+            </ScrollArea>
 
             <Drawer position='right' offset={8} radius="md" opened={opened} onClose={close} title="Details"
                 styles={() => ({

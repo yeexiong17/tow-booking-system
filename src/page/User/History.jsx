@@ -25,16 +25,6 @@ const History = () => {
         "Canceled": <Badge size='sm' color="red">Canceled</Badge>,
     }
 
-    const fromLocation = {
-        latitude: 3.1385027,
-        longitude: 101.6050874,
-    }
-
-    const toLocation = {
-        latitude: 3.1385027,
-        longitude: 101.6050874,
-    }
-
     useEffect(() => {
         fetchBookingData()
     }, [])
