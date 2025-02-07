@@ -174,7 +174,6 @@ const RequestTow = () => {
                         <Payment setPaymentMethod={setPaymentMethod} />
                     </Stepper.Completed>
                 </Stepper>
-                <Button onClick={() => uploadImageToSupabase()}>Test Upload Image</Button>
                 <Group justify="center" mt="xl">
                     {
                         active > 0 && <Button variant="default" onClick={() => handleStepChange(active - 1)}>Back</Button>
