@@ -1,20 +1,38 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { Button, Card, Drawer, Group, Image, Space, Text } from "@mantine/core"
 import CommonLayout from "../components/CommonLayout"
 import { useDisclosure } from "@mantine/hooks"
 import { useAuth } from "../Context"
 import { useNavigate } from "react-router-dom"
 import { convertToMalaysiaTime } from "../helpers/HelperFunction"
+import { supabase } from "../supabase"
 
 const Profile = () => {
     const { signOut, userData } = useAuth()
     const [opened, { open, close }] = useDisclosure(false)
-    const { user_metadata } = userData
+    const [profileData, setProfileData] = useState(null)
     const navigate = useNavigate()
 
     useEffect(() => {
         open()
-    }, [open])
+        fetchProfileData()
+    }, [userData])
+
+    const fetchProfileData = async () => {
+        try {
+            const { data, error } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', userData.id)
+                .single()
+
+            if (error) throw error
+
+            setProfileData(data)
+        } catch (error) {
+            console.error('Error fetching profile:', error)
+        }
+    }
 
     const handleClose = () => {
         close()
@@ -40,7 +58,7 @@ const Profile = () => {
                 <Card padding="md" radius="md" withBorder>
                     <Card.Section>
                         <Image
-                            src='https://static.vecteezy.com/system/resources/thumbnails/002/387/693/small_2x/user-profile-icon-free-vector.jpg'// {`${user_metadata.profile_picture}`}
+                            src={profileData?.profile_picture || 'https://static.vecteezy.com/system/resources/thumbnails/002/387/693/small_2x/user-profile-icon-free-vector.jpg'}
                             height={50}
                         />
                     </Card.Section>
@@ -51,10 +69,10 @@ const Profile = () => {
                         <Text fw={700}>Basic Information:</Text>
                     </Group>
 
-                    <Text size="sm" fw={500}>ID      : <span className="font-normal">{userData?.id}</span></Text>
-                    <Text size="sm" fw={500}>Username: <span className="font-normal">{user_metadata?.name}</span></Text>
-                    <Text size="sm" fw={500}>Role    : <span className="font-normal">{user_metadata?.role}</span></Text>
-                    <Text size="sm" fw={500}>Status  : <span className="font-normal">{user_metadata?.status}</span></Text>
+                    <Text size="sm" fw={500}>ID      : <span className="font-normal">{profileData?.id}</span></Text>
+                    <Text size="sm" fw={500}>Username: <span className="font-normal">{profileData?.name}</span></Text>
+                    <Text size="sm" fw={500}>Role    : <span className="font-normal">{profileData?.role}</span></Text>
+                    <Text size="sm" fw={500}>Status  : <span className="font-normal">{profileData?.status}</span></Text>
                 </Card>
                 <Space h="lg" />
                 <Card padding="md" radius="md" withBorder>
@@ -62,8 +80,8 @@ const Profile = () => {
                         <Text fw={700}>Contact Information:</Text>
                     </Group>
 
-                    <Text size="sm" fw={500}>Email   : <span className="font-normal">{user_metadata?.email}</span></Text>
-                    <Text size="sm" fw={500}>Phone: <span className="font-normal">{userData?.phone || 'No phone added'}</span></Text>
+                    <Text size="sm" fw={500}>Email   : <span className="font-normal">{profileData?.email}</span></Text>
+                    <Text size="sm" fw={500}>Phone: <span className="font-normal">{profileData?.phone || 'No phone added'}</span></Text>
                     <Text size="sm" fw={500}>Date Time Joined:</Text>
                     <span className="font-normal">{convertToMalaysiaTime(userData.created_at)}</span>
                 </Card>
