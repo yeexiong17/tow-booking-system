@@ -7,19 +7,8 @@ import { useAuth } from '../../Context'
 import { supabase } from '../../supabase'
 
 const Rejected = ({ towDriverDetails }) => {
-    const [rejectionReason, setRejectionReason] = useState('')
     const navigate = useNavigate()
     const { signOut, toggle } = useAuth()
-
-    useEffect(() => {
-        // Fetch rejection reason when component mounts
-        const fetchRejectionReason = async () => {
-            // TODO: Implement fetching rejection reason from your data source
-            setRejectionReason('Your license documentation was unclear. Please provide a clearer image.')
-        }
-
-        fetchRejectionReason()
-    }, [])
 
     const handleResubmit = async () => {
         try {
@@ -73,9 +62,10 @@ const Rejected = ({ towDriverDetails }) => {
             <Title order={4} mb="xs">Reason for Rejection:</Title>
             <Paper withBorder p="md" mb="xl" bg="gray.0">
                 <Text>
-                    {rejectionReason || 'No reason provided'}
+                    {towDriverDetails.reject_reason || 'No reason provided'}
                 </Text>
             </Paper>
+
 
             <Button
                 onClick={handleResubmit}

@@ -158,7 +158,7 @@ function App() {
                 />
               </>
             ) : auth?.user_metadata?.role === 'tow' ? (
-              auth?.user_metadata?.status === 'active' ? (
+              towDriverDetails?.status === 'approved' ? (
                 <>
                   <Route
                     path="/*"

@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react"
-import { Button, Stack, TextInput, PasswordInput, Space, Anchor, Flex, Divider } from '@mantine/core'
+import { useState } from "react"
+import { Button, Stack, TextInput, PasswordInput, Space, Anchor } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
 
 import { supabase } from "../supabase"
@@ -12,7 +12,6 @@ const SignUp = () => {
     const [role, setRole] = useState('user')
 
     const handleSignUp = async () => {
-
         let trimName = name.trim()
         let trimEmail = email.trim()
         let trimPassword = password.trim()
@@ -49,10 +48,40 @@ const SignUp = () => {
                 position: 'top-right',
                 color: 'red'
             })
-
             return
         }
 
+        // Only store profile data if the role is not 'tow'
+        if (role !== 'tow') {
+            const { error: profileError } = await supabase
+                .from('profiles')
+                .insert({
+                    id: data.user.id,
+                    name: trimName,
+                    status: 'active',
+                    role: role,
+                    email: trimEmail
+                })
+
+            if (profileError) {
+                notifications.show({
+                    title: 'Profile Creation Error',
+                    message: profileError.message,
+                    className: 'w-5/6 ml-auto',
+                    position: 'top-right',
+                    color: 'red'
+                })
+                return
+            }
+        }
+
+        notifications.show({
+            title: 'Success',
+            message: 'Account created successfully',
+            className: 'w-5/6 ml-auto',
+            position: 'top-right',
+            color: 'green'
+        })
     }
 
     return (

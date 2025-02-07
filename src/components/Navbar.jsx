@@ -104,7 +104,7 @@ const Navbar = () => {
 
     return (
         !isAdmin
-            ? <nav className={`${classes.navbar} fixed bottom-0 right-0 left-0`}>
+            ? <nav className={`${classes.navbar} z-50 fixed bottom-0 right-0 left-0`}>
                 <div className={classes.navbarMain}>
                     {links}
                 </div>

@@ -160,7 +160,7 @@ const ManageUserAndTow = () => {
                             <Space h="xs" />
                             <Flex className='items-center'>
                                 <Avatar
-                                    src="https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-8.png"
+                                    src={userData.face_photo_url}
                                     radius="lg"
                                     size="xl"
                                 />
