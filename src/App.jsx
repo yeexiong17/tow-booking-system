@@ -22,6 +22,7 @@ import Report from './page/Admin/Report'
 import NotVerified from './page/Tow/NotVerified'
 import WaitVerify from './page/Tow/WaitVerify'
 import RequestTow from './page/User/RequestTow'
+import Rejected from './page/Tow/Rejected'
 
 function App() {
   const [loading, setLoading] = useState(true)
@@ -199,24 +200,42 @@ function App() {
                     }
                   />
                 </>
-              ) : (
+              ) : towDriverDetails?.status == 'rejected'
+                ?
                 <>
                   <Route
                     path="/*"
                     element={
-                      <Navigate to="/not-verified" replace />
+                      <Navigate to="/rejected" replace />
                     }
                   />
                   <Route
-                    path="/not-verified"
+                    path="/rejected"
                     element={
                       <ProtectedRoute>
-                        <NotVerified />
+                        <Rejected towDriverDetails={towDriverDetails} />
                       </ProtectedRoute>
                     }
                   />
                 </>
-              )
+                : (
+                  <>
+                    <Route
+                      path="/*"
+                      element={
+                        <Navigate to="/not-verified" replace />
+                      }
+                    />
+                    <Route
+                      path="/not-verified"
+                      element={
+                        <ProtectedRoute>
+                          <NotVerified />
+                        </ProtectedRoute>
+                      }
+                    />
+                  </>
+                )
             ) : (
               <>
                 {/* Protected Routes */}

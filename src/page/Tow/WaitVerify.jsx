@@ -14,7 +14,7 @@ const WaitVerify = () => {
             <p className='text-red-500'>You will not be able to use the app until admin verified your details</p>
 
             <Space h={20} />
-            <Button size='md' onClick={() => signOut()} color="blue" fullWidth mt="md" radius="md">Log Out</Button>
+            <Button size='md' onClick={() => signOut()} color="red" fullWidth mt="md" radius="md">Log Out</Button>
 
         </CommonLayout>
     )

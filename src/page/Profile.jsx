@@ -67,7 +67,7 @@ const Profile = () => {
                     <Text size="sm" fw={500}>Date Time Joined:</Text>
                     <span className="font-normal">{convertToMalaysiaTime(userData.created_at)}</span>
                 </Card>
-                <Button size='md' onClick={() => signOut()} color="blue" fullWidth mt="md" radius="md">Log Out</Button>
+                <Button size='md' onClick={() => signOut()} color="red" fullWidth mt="md" radius="md">Log Out</Button>
             </Drawer>
         </CommonLayout>
     )

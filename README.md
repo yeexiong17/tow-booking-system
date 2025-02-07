@@ -42,4 +42,5 @@ The application uses the following booking statuses:
 | Status | Description |
 |--------|-------------|
 | Pending | Application is pending approval |
-| Verified | Application is approved to provide services |
+| Approved | Application is approved to provide services |
+| Rejected | Application is rejected |

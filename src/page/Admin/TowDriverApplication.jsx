@@ -18,7 +18,6 @@ import {
 import CommonLayout from '../../components/CommonLayout'
 import { supabase } from '../../supabase'
 import { useAuth } from '../../Context'
-import { notifications } from '@mantine/notifications'
 import { useDisclosure } from '@mantine/hooks'
 
 const TowDriverApplication = () => {

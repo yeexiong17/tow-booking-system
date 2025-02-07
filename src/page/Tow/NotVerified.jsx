@@ -196,7 +196,7 @@ const NotVerified = () => {
             <Button size='md' onClick={() => onSubmitForm()} color="green" fullWidth mt="md" radius="md">Submit For Review</Button>
 
             <Space h={20} />
-            <Button size='md' onClick={() => signOut()} color="blue" fullWidth mt="md" radius="md">Log Out</Button>
+            <Button size='md' onClick={() => signOut()} color="red" fullWidth mt="md" radius="md">Log Out</Button>
         </CommonLayout>
     )
 }
