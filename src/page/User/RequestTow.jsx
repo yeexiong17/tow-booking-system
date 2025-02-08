@@ -106,8 +106,8 @@ const RequestTow = () => {
                 .insert({
                     user_id: userData.id,
                     status: 'Pending',
-                    from_address: locationDetails.fromCoordinates,
-                    to_address: locationDetails.toCoordinates,
+                    from_coordinates: locationDetails.fromCoordinates,
+                    to_coordinates: locationDetails.toCoordinates,
                     vehicle_image_url: car_photo_url,
                     vehicle_type: vehicleDetails.type,
                     vehicle_model: vehicleDetails.model,
@@ -115,8 +115,7 @@ const RequestTow = () => {
                     vehicle_plate: vehicleDetails.numberPlate
                 })
 
-            if (error) throw new Error(error)
-
+            if (error) throw error
             notifications.show({
                 title: 'Thank You!',
                 message: 'Transaction Completed.',
@@ -127,10 +126,10 @@ const RequestTow = () => {
         } catch (error) {
             notifications.show({
                 title: 'Transaction Error',
-                message: error,
+                message: error.message,
                 className: 'w-5/6 ml-auto',
                 position: 'top-right',
-                color: 'green',
+                color: 'red',
             })
         }
         finally {
@@ -138,6 +137,7 @@ const RequestTow = () => {
         }
 
         navigate('/home')
+
     }
 
     return (
