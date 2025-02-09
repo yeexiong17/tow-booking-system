@@ -6,8 +6,15 @@ import LocationDetails from '../../components/LocationDetails'
 import { notifications } from '@mantine/notifications'
 import { useNavigate } from 'react-router-dom'
 import Payment from '../../components/Payment'
+import Pending from '../../components/Pending'
+import InProgress from '../../components/InProgress'
 import { useAuth } from '../../Context'
 import { supabase } from '../../supabase'
+import {
+    IconCarFilled,
+    IconMapPinFilled,
+    IconLoader
+} from '@tabler/icons-react'
 
 const RequestTow = () => {
 
@@ -33,10 +40,56 @@ const RequestTow = () => {
     })
 
     const [paymentMethod, setPaymentMethod] = useState('')
+    const [bookingId, setBookingId] = useState(null)
+    const [bookingStatus, setBookingStatus] = useState('')
+
+    useEffect(() => {
+        const checkPendingBooking = async () => {
+            const { data, error } = await supabase
+                .from('bookings')
+                .select('id, status')
+                .eq('user_id', userData.id)
+                .in('status', ['Pending', 'In progress'])
+                .single()
+
+            if (error && error.code !== 'PGRST116') return
+
+            if (data) {
+                setBookingId(data.id)
+                setBookingStatus(data.status)
+                if (data.status === 'Pending') {
+                    setActive(2)
+                } else if (data.status === 'In progress') {
+                    setActive(3)
+                }
+            }
+        }
+
+        checkPendingBooking()
+    }, [userData.id])
+
+    useEffect(() => {
+        if (!bookingId || active < 2) return
+
+        const interval = setInterval(async () => {
+            const { data, error } = await supabase
+                .from('bookings')
+                .select('status')
+                .eq('id', bookingId)
+                .single()
+
+            if (!error && (data.status !== 'Pending' && data.status !== 'In progress')) {
+                setBookingStatus(data.status)
+                setActive(4)
+            }
+        }, 5000)
+
+        return () => clearInterval(interval)
+    }, [bookingId, active])
 
     const handleStepChange = (nextStep) => {
 
-        if (nextStep > 3 || nextStep < 0) return
+        if (nextStep > 4 || nextStep < 0) return
 
         const isVehicleDetailsIncomplete = Object.entries(vehicleDetails)
             .some(([key, value]) => (key !== 'vehicleImage' && value.trim() === '') || (key === 'vehicleImage' && value === null))
@@ -52,6 +105,9 @@ const RequestTow = () => {
                 color: 'red'
             })
             return
+        }
+        if (!isLocationDetailsIncomplete && nextStep === 2) {
+            insertBooking()
         }
 
         setActive(nextStep)
@@ -96,7 +152,11 @@ const RequestTow = () => {
             })
             return
         }
+        navigate('/home')
 
+    }
+
+    const insertBooking = async () => {
         try {
             toggle()
             const car_photo_url = await uploadImageToSupabase()
@@ -117,15 +177,15 @@ const RequestTow = () => {
 
             if (error) throw error
             notifications.show({
-                title: 'Thank You!',
-                message: 'Transaction Completed.',
+                title: 'Booking',
+                message: 'Booking Requested',
                 className: 'w-5/6 ml-auto',
                 position: 'top-right',
-                color: 'green',
+                color: 'blue',
             })
         } catch (error) {
             notifications.show({
-                title: 'Transaction Error',
+                title: 'Booking Error',
                 message: error.message,
                 className: 'w-5/6 ml-auto',
                 position: 'top-right',
@@ -135,40 +195,82 @@ const RequestTow = () => {
         finally {
             toggle()
         }
+    }
+    const handleCancelRequest = async () => {
+        try {
+            toggle()
 
+            const { error } = await supabase
+                .from('bookings')
+                .delete()
+                .eq('user_id', userData.id)
+                .eq('status', 'Pending')
+
+            if (error) throw error
+
+            setBookingId(null)
+            setBookingStatus('')
+            setActive(0)
+
+            notifications.show({
+                title: 'Booking Cancelled',
+                message: 'Your request has been cancelled successfully.',
+                className: 'w-5/6 ml-auto',
+                position: 'top-right',
+                color: 'blue',
+            })
+        } catch (error) {
+            notifications.show({
+                title: 'Cancellation Error',
+                message: error.message,
+                className: 'w-5/6 ml-auto',
+                position: 'top-right',
+                color: 'red',
+            })
+        } finally {
+            toggle()
+
+        }
         navigate('/home')
-
     }
 
+    
     return (
         <CommonLayout>
             <>
                 <Stepper
                     size='sm'
                     active={active}
+                    allowNextStepsSelect={false}
                     styles={() => ({
                         step: {
                             display: 'flex',
                             flexDirection: 'column',
                             alignItems: 'center',
-                            justifyContent: 'center',
+                            justifyContent: 'left',
                         },
                         stepBody: {
-                            margin: '8px 0 0',
+                            margin: '8px 0px 0px',
                         },
                         stepLabel: {
-                            textAlign: 'center',
+                            textAlign: 'right',
                         },
                         stepDescription: {
                             textAlign: 'center',
                         },
                     })}
                 >
-                    <Stepper.Step label="Enter Vehicle Details">
+                    <Stepper.Step icon={<IconCarFilled size={20} />} label="Vehicle Details">
                         <VehicleDetails vehicleDetails={vehicleDetails} setVehicleDetails={setVehicleDetails} />
                     </Stepper.Step>
-                    <Stepper.Step label="Enter Location">
+                    <Stepper.Step icon={<IconMapPinFilled size={20} />} label="Location">
                         <LocationDetails locationDetails={locationDetails} setLocationDetails={setLocationDetails} />
+                    </Stepper.Step>
+                    <Stepper.Step icon={<IconLoader size={20} />} label="Pending">
+                        <Pending />
+                    </Stepper.Step>
+                    <Stepper.Step icon={<IconLoader size={20} />} label="In Progress">
+                        <InProgress />
                     </Stepper.Step>
                     <Stepper.Completed>
                         <Payment setPaymentMethod={setPaymentMethod} />
@@ -176,14 +278,19 @@ const RequestTow = () => {
                 </Stepper>
                 <Group justify="center" mt="xl">
                     {
-                        active > 0 && <Button variant="default" onClick={() => handleStepChange(active - 1)}>Back</Button>
-
+                        active > 0 && active !== 2 && active !== 3 && <Button variant="default" onClick={() => handleStepChange(active - 1)}>Back</Button>
                     }
 
                     {
-                        active < 2
-                            ? <Button onClick={() => handleStepChange(active + 1)}>Next</Button>
-                            : <Button onClick={() => handlePayment()}>Proceed to payment</Button>
+                        active === 0 ? (
+                            <Button onClick={() => handleStepChange(1)}>Next</Button>
+                        ) : active === 1 ? (
+                            <Button onClick={() => handleStepChange(2)}>Next</Button>
+                        ) : active === 2 ? (
+                            <Button onClick={() => handleCancelRequest()}>Cancel Request</Button>
+                        ) : active === 4 ? (
+                            <Button onClick={() => handlePayment()}>Proceed to payment</Button>
+                        ) : null
                     }
                 </Group>
             </>

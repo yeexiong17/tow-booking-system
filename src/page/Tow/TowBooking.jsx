@@ -1,39 +1,70 @@
+import { useState, useEffect } from 'react';
 import { Badge, Button, Divider, Card, Drawer, Flex, ScrollArea, Space, Stack, Text } from '@mantine/core'
 import CommonLayout from '../../components/CommonLayout'
 import { IconMapPinFilled } from '@tabler/icons-react'
 import { useDisclosure } from '@mantine/hooks'
 import Map from '../../components/Map'
-import { useState } from 'react'
+import { supabase } from '../../supabase';
+import { useAuth } from '../../Context';
+import { convertToMalaysiaTime } from '../../helpers/HelperFunction';
 
 const TowBooking = () => {
     const [opened, { open, close }] = useDisclosure(false)
     const [currentBooking, setCurrentBooking] = useState(null)
+    const [bookings, setBookings] = useState([]);
+    const { userData } = useAuth();
 
-    const [bookings, setBookings] = useState([
-        {
-            id: 1,
-            status: 'In progress',
-            createdAt: '08/01/2025, 14:30:00',
-            completedAt: null,
-            from: 'Persiaran Multimedia, 63100 Cyberjaya, Selangor',
-            to: 'Jalan Ayer Keroh Lama, 75450 Bukit Beruang, Melaka',
-            price: 'RM 100',
-            fromLocation: { latitude: 3.1385027, longitude: 101.6050874 },
-            toLocation: { latitude: 2.26503, longitude: 102.28536 },
-        },
-        {
-            id: 2,
-            status: 'Completed',
-            createdAt: '07/01/2025, 10:00:00',
-            completedAt: '07/01/2025, 12:00:00',
-            from: 'Jalan Tun Razak, Kuala Lumpur',
-            to: 'Petaling Jaya, Selangor',
-            price: 'RM 150',
-            fromLocation: { latitude: 3.1721, longitude: 101.7007 },
-            toLocation: { latitude: 3.1073, longitude: 101.6067 },
-        },
-    ])
+    useEffect(() => {
+        fetchTowBookings();
+    }, []);
 
+    const fetchTowBookings = async () => {
+        try {
+            const { data, error } = await supabase
+                .from('bookings')
+                .select()
+                .eq('tow_id', userData.id)
+
+            if (error) throw new Error(error)
+
+            setBookings(data)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+    const handleFinishBooking = async () => {
+        try {
+            // Find the first pending booking
+            const pendingBooking = bookings.find((b) => b.status === 'In Progress');
+
+            if (!pendingBooking) {
+                console.log("No In Progress bookings found.");
+                return;
+            }
+
+            // Update in Supabase
+            const { error } = await supabase
+                .from('bookings')
+                .update({ status: 'Completed', completed_at: new Date().toISOString() })
+                .eq('id', pendingBooking.id);
+
+            if (error) throw error;
+
+            // Update state after successful database update
+            setBookings((prevBookings) =>
+                prevBookings.map((b) =>
+                    b.id === pendingBooking.id
+                        ? { ...b, status: 'Completed', completedAt: new Date().toLocaleString() }
+                        : b
+                )
+            );
+
+            // Close the drawer
+            close();
+        } catch (error) {
+            console.error("Error updating booking:", error);
+        }
+    };
     const allBadge = {
         // No tow driver being assigned yet
         'Pending': <Badge size="sm" color="blue">Pending</Badge>,
@@ -48,18 +79,6 @@ const TowBooking = () => {
     const handleOpenDrawer = (booking) => {
         setCurrentBooking(booking)
         open()
-    }
-
-    const handleFinishBooking = () => {
-        if (currentBooking) {
-            const updatedBookings = bookings.map((b) =>
-                b.id === currentBooking.id
-                    ? { ...b, status: 'Completed', completedAt: new Date().toLocaleString() }
-                    : b
-            )
-            setBookings(updatedBookings)
-            close()
-        }
     }
 
     const sortedBookings = bookings.sort((a, b) => {

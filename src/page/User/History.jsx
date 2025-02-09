@@ -35,10 +35,20 @@ const History = () => {
                 .from('bookings')
                 .select()
                 .eq('user_id', userData.id)
+                .order('created_at', { ascending: false })
 
             if (error) throw new Error(error)
+            const sortedData = data.sort((a, b) => {
+                const statusOrder = { "Pending": 1, "In progress": 2, "Completed": 3, "Canceled": 4 }
 
-            setBookingData(data)
+                if (statusOrder[a.status] !== statusOrder[b.status]) {
+                    return statusOrder[a.status] - statusOrder[b.status]
+                }
+                // If statuses are the same, sort by latest created_at
+                return new Date(b.created_at) - new Date(a.created_at)
+            })
+
+            setBookingData(sortedData)
         } catch (error) {
             console.log(error)
         }
@@ -152,7 +162,7 @@ const History = () => {
                                                 Persiaran Multimedia, 63100 Cyberjaya, Selangor to Jalan Ayer Keroh Lama, 75450 Bukit Beruang, Melaka
                                             </Text>
                                             <Space w="md" />
-                                            <Text className='text-nowrap'>RM 100</Text>
+                                            <Text className='text-nowrap'>RM {booking.price || 'N/A'}</Text>
                                         </Flex>
                                         <Flex>
                                             <Text size='sm' c='dimmed'>{convertToMalaysiaTime(booking.created_at)}</Text>
@@ -168,7 +178,7 @@ const History = () => {
                                     </Stack>
                                 </Card>
                             ))
-                            : null
+                            : <Text size="sm" c="dimmed">No booking history available.</Text>
                     }
 
                 </ScrollArea>
