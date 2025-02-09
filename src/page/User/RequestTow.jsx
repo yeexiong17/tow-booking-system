@@ -69,23 +69,26 @@ const RequestTow = () => {
     }, [userData.id])
 
     useEffect(() => {
-        if (!bookingId || active < 2) return
+        if (!bookingId) return;
 
-        const interval = setInterval(async () => {
+        const checkStatus = async () => {
             const { data, error } = await supabase
                 .from('bookings')
                 .select('status')
                 .eq('id', bookingId)
-                .single()
+                .single();
 
-            if (!error && (data.status !== 'Pending' && data.status !== 'In progress')) {
-                setBookingStatus(data.status)
-                setActive(4)
+            if (!error && data.status !== bookingStatus) {
+                setBookingStatus(data.status);
+                setActive(data.status === 'In progress' ? 3 : 4);
             }
-        }, 5000)
+        };
 
-        return () => clearInterval(interval)
-    }, [bookingId, active])
+        checkStatus();
+        const interval = setInterval(checkStatus, 5000);
+
+        return () => clearInterval(interval);
+    }, [bookingId, bookingStatus]);
 
     const handleStepChange = (nextStep) => {
 
@@ -152,6 +155,13 @@ const RequestTow = () => {
             })
             return
         }
+        notifications.show({
+            title: 'Thank You!',
+            message: 'Transaction Completed',
+            className: 'w-5/6 ml-auto',
+            position: 'top-right',
+            color: 'green',
+        })
         navigate('/home')
 
     }
