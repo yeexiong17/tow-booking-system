@@ -58,7 +58,6 @@ function App() {
         .select('*')
         .eq('user_id', userId)
 
-      console.log(data)
       setTowDriverDetails(data[0])
     } catch (error) {
       console.log(error)
@@ -183,7 +182,7 @@ function App() {
                     }
                   />
                 </>
-              ) : towDriverDetails?.status == 'pending' ? (
+              ) : towDriverDetails?.status === 'pending' ? (
                 <>
                   <Route
                     path="/*"
@@ -200,8 +199,7 @@ function App() {
                     }
                   />
                 </>
-              ) : towDriverDetails?.status == 'rejected'
-                ?
+              ) : towDriverDetails?.status === 'rejected' ? (
                 <>
                   <Route
                     path="/*"
@@ -218,25 +216,25 @@ function App() {
                     }
                   />
                 </>
-                : (
-                  <>
-                    <Route
-                      path="/*"
-                      element={
-                        <Navigate to="/not-verified" replace />
-                      }
-                    />
-                    <Route
-                      path="/not-verified"
-                      element={
-                        <ProtectedRoute>
-                          <NotVerified />
-                        </ProtectedRoute>
-                      }
-                    />
-                  </>
-                )
-            ) : (
+              ) : (
+                <>
+                  <Route
+                    path="/*"
+                    element={
+                      <Navigate to="/not-verified" replace />
+                    }
+                  />
+                  <Route
+                    path="/not-verified"
+                    element={
+                      <ProtectedRoute>
+                        <NotVerified />
+                      </ProtectedRoute>
+                    }
+                  />
+                </>
+              )
+            ) : auth?.user_metadata?.role === 'user' ? (
               <>
                 {/* Protected Routes */}
                 <Route
@@ -287,7 +285,8 @@ function App() {
                   }
                 />
               </>
-            )}
+            ) : null
+            }
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes >
         )

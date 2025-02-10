@@ -82,8 +82,7 @@ const Profile = () => {
 
                     <Text size="sm" fw={500}>Email   : <span className="font-normal">{profileData?.email}</span></Text>
                     <Text size="sm" fw={500}>Phone: <span className="font-normal">{profileData?.phone || 'No phone added'}</span></Text>
-                    <Text size="sm" fw={500}>Date Time Joined:</Text>
-                    <span className="font-normal">{convertToMalaysiaTime(userData.created_at)}</span>
+                    <Text size="sm" fw={500}>Date Time Joined: <span className="font-normal">{convertToMalaysiaTime(userData.created_at)}</span></Text>
                 </Card>
                 <Button size='md' onClick={() => signOut()} color="red" fullWidth mt="md" radius="md">Log Out</Button>
             </Drawer>
