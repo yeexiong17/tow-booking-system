@@ -30,6 +30,14 @@ const SignUp = () => {
         const { data, error } = await supabase.auth.signUp({
             email: trimEmail,
             password: trimPassword,
+            options: {
+                data: {
+                    name: trimName,
+                    role: role,
+                    email: trimEmail,
+                    status: role == 'tow' ? 'unactive' : 'active'
+                }
+            }
         })
 
         if (error) {
