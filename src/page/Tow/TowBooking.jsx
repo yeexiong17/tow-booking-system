@@ -1,18 +1,19 @@
 import { useState, useEffect } from 'react';
-import { Badge, Button, Divider, Card, Drawer, Flex, ScrollArea, Space, Stack, Text } from '@mantine/core'
-import CommonLayout from '../../components/CommonLayout'
-import { IconMapPinFilled } from '@tabler/icons-react'
-import { useDisclosure } from '@mantine/hooks'
-import Map from '../../components/Map'
+import { Badge, Button, Divider, Group, Image, Card, Drawer, Flex, ScrollArea, Space, Stack, Text } from '@mantine/core';
+import CommonLayout from '../../components/CommonLayout';
+import { Link } from 'react-router-dom';
+import { useDisclosure } from '@mantine/hooks';
+import { IconArrowNarrowRight, IconMapPinFilled } from '@tabler/icons-react';
+import Map from '../../components/Map';
 import { supabase } from '../../supabase';
 import { useAuth } from '../../Context';
 import { convertToMalaysiaTime } from '../../helpers/HelperFunction';
 
 const TowBooking = () => {
-    const [opened, { open, close }] = useDisclosure(false)
-    const [currentBooking, setCurrentBooking] = useState(null)
+    const [opened, { open, close }] = useDisclosure(false);
     const [bookings, setBookings] = useState([]);
     const { userData } = useAuth();
+    const [selectedData, setSelectedData] = useState({});
 
     useEffect(() => {
         fetchTowBookings();
@@ -24,202 +25,145 @@ const TowBooking = () => {
                 .from('bookings')
                 .select()
                 .eq('tow_id', userData.id)
+                .order('created_at', { ascending: false });
 
-            if (error) throw new Error(error)
-
-            setBookings(data)
+            if (error) throw new Error(error);
+            const statusOrder = { "Pending": 1, "In progress": 2, "Completed": 3, "Canceled": 4 };
+            const sortedData = data.sort((a, b) => statusOrder[a.status] - statusOrder[b.status] || new Date(b.created_at) - new Date(a.created_at));
+            setBookings(sortedData);
         } catch (error) {
-            console.log(error)
+            console.log(error);
         }
-    }
+    };
+
+    const allBadge = {
+        'Pending': <Badge size="sm" color="blue">Pending</Badge>,
+        'In progress': <Badge size="sm" color="yellow">In progress</Badge>,
+        'Completed': <Badge size="sm" color="green">Completed</Badge>,
+        'Canceled': <Badge size="sm" color="red">Canceled</Badge>,
+    };
+
+    const handleOpenDrawer = (booking) => {
+        setSelectedData(booking);
+        open();
+    };
+
     const handleFinishBooking = async () => {
         try {
-            // Find the first pending booking
-            const pendingBooking = bookings.find((b) => b.status === 'In Progress');
+            if (!selectedData.id || selectedData.status !== 'In progress') return;
 
-            if (!pendingBooking) {
-                console.log("No In Progress bookings found.");
-                return;
-            }
-
-            // Update in Supabase
-            const { error } = await supabase
+            // Update the booking status to "Completed"
+            const { error: bookingError } = await supabase
                 .from('bookings')
                 .update({ status: 'Completed', completed_at: new Date().toISOString() })
-                .eq('id', pendingBooking.id);
+                .eq('id', selectedData.id);
 
-            if (error) throw error;
+            if (bookingError) throw bookingError;
 
-            // Update state after successful database update
+            // Update the driver's status in the profiles table
+            const { error: profileError } = await supabase
+                .from('profiles')
+                .update({ status: 'active' })
+                .eq('id', selectedData.tow_id);
+
+            if (profileError) throw profileError;
+
+            // Update the state to reflect the changes
             setBookings((prevBookings) =>
                 prevBookings.map((b) =>
-                    b.id === pendingBooking.id
-                        ? { ...b, status: 'Completed', completedAt: new Date().toLocaleString() }
-                        : b
+                    b.id === selectedData.id ? { ...b, status: 'Completed', completed_at: new Date().toISOString() } : b
                 )
             );
 
             // Close the drawer
             close();
         } catch (error) {
-            console.error("Error updating booking:", error);
+            console.error("Error updating booking and profile:", error);
         }
     };
-    const allBadge = {
-        // No tow driver being assigned yet
-        'Pending': <Badge size="sm" color="blue">Pending</Badge>,
-        // Tow driver is on the way to pick up the vehicle
-        'In progress': <Badge size="sm" color="yellow">In progress</Badge>,
-        // Everything completed, vehicle delivered to the destination
-        'Completed': <Badge size="sm" color="green">Completed</Badge>,
-        // Booking canceled by the user
-        'Canceled': <Badge size="sm" color="red">Canceled</Badge>,
-    }
-
-    const handleOpenDrawer = (booking) => {
-        setCurrentBooking(booking)
-        open()
-    }
-
-    const sortedBookings = bookings.sort((a, b) => {
-        if (a.status === 'In progress' && b.status !== 'In progress') return -1
-        if (a.status !== 'In progress' && b.status === 'In progress') return 1
-        return new Date(b.createdAt) - new Date(a.createdAt)
-    })
 
     return (
         <CommonLayout>
-            <Drawer
-                position="bottom"
-                size="100%"
-                opened={opened}
-                onClose={close}
-                title="Booking Details"
-            >
-                {currentBooking && (
-                    <Stack spacing="lg">
-                        <Card padding="md" radius="md" withBorder>
-                            <Stack>
-                                <Text size="sm" fw={500}>
-                                    Status: {allBadge[currentBooking.status]}
-                                </Text>
-                                <Text size="sm" fw={500}>
-                                    Created At: {currentBooking.createdAt}
-                                </Text>
-                                <Text size="sm" fw={500}>
-                                    Completed At: {currentBooking.completedAt || '-'}
-                                </Text>
-                                <Text size="sm" fw={500}>
-                                    Price: {currentBooking.price}
-                                </Text>
-                            </Stack>
-                        </Card>
-
-                        <Card padding="md" radius="md" withBorder>
-                            <Stack>
-                                <Flex>
-                                    <IconMapPinFilled className="text-blue-500 mr-2" />
-                                    <Text fw={500}>From:</Text>
-                                    <Space w="sm" />
-                                    <Text c="dimmed">{currentBooking.from}</Text>
-                                </Flex>
-                                <Flex>
-                                    <IconMapPinFilled className="text-red-500 mr-2" />
-                                    <Text fw={500}>To:</Text>
-                                    <Space w="sm" />
-                                    <Text c="dimmed">{currentBooking.to}</Text>
-                                </Flex>
-                                <Map
-                                    bookingLocation={[
-                                        currentBooking.fromLocation,
-                                        currentBooking.toLocation,
-                                    ]}
-                                />
-                            </Stack>
-                        </Card>
-
-                        {currentBooking.status === 'In progress' && (
-                            <Button
-                                size="md"
-                                color="blue"
-                                fullWidth
-                                onClick={handleFinishBooking}
-                            >
-                                Finish Booking
-                            </Button>
-                        )}
+            <Drawer position='bottom' size='100%' opened={opened} onClose={close} title="Booking Details">
+                <Card padding="md" radius="md" withBorder>
+                    <Stack>
+                        <Text size="sm" fw={500}>Status: {allBadge[selectedData.status]}</Text>
+                        <Text size="sm" fw={500}>Created At: {convertToMalaysiaTime(selectedData.created_at)}</Text>
+                        <Text size="sm" fw={500}>Completed At: {selectedData.completed_at ? convertToMalaysiaTime(selectedData.completed_at) : '-'}</Text>
                     </Stack>
+                </Card>
+                <Space h="lg" />
+                <Card padding="md" radius="md" withBorder>
+                    <Card.Section>
+                        <Image src={selectedData.vehicle_image_url} height={150} fit="contain" />
+                    </Card.Section>
+                    <Group justify="space-between" mt="md" mb="xs">
+                        <Text fw={700}>Vehicle Details:</Text>
+                    </Group>
+                    <Text size="sm" fw={500}>Type: {selectedData.vehicle_type}</Text>
+                    <Text size="sm" fw={500}>Model: {selectedData.vehicle_model}</Text>
+                    <Text size="sm" fw={500}>Color: {selectedData.vehicle_color}</Text>
+                    <Text size="sm" fw={500}>Plate: {selectedData.vehicle_plate}</Text>
+                </Card>
+                <Space h="lg" />
+                <Card padding="md" radius="md" withBorder>
+                    <Map bookingLocation={[selectedData.from_coordinates, selectedData.to_coordinates]} />
+                </Card>
+                {selectedData.status === 'In progress' && (
+                    <Button
+                        size="md"
+                        color="blue"
+                        fullWidth
+                        onClick={() => handleFinishBooking()}
+                    >
+                        Complete Service
+                    </Button>
                 )}
             </Drawer>
-
             <Stack>
-                <Text fw="bold" size="xl" mb="sm">
-                    Bookings
-                </Text>
+                <Text fw="bold" size="xl" mb="sm">Bookings</Text>
                 <ScrollArea>
-                    {/* In Progress Cards */}
-                    {sortedBookings.some((booking) => booking.status === 'In progress') && (
-                        <div>
-                            {sortedBookings
-                                .filter((booking) => booking.status === 'In progress')
-                                .map((booking) => (
-                                    <Card
-                                        key={booking.id}
-                                        padding="md"
-                                        radius="md"
-                                        shadow="xs"
-                                        withBorder
-                                        onClick={() => handleOpenDrawer(booking)}
-                                    >
-                                        <Stack>
-                                            {allBadge[booking.status]}
-                                            <Flex>
-                                                <Text lineClamp={2}>
-                                                    {booking.from} to {booking.to}
-                                                </Text>
-                                                <Text ml="auto">{booking.price}</Text>
-                                            </Flex>
-                                            <Text size="sm" c="dimmed">
-                                                {booking.createdAt}
-                                            </Text>
-                                        </Stack>
-                                    </Card>
-                                ))}
-                            {/* Divider to separate pinned and completed cards */}
-                            <Divider my="lg" label="Completed Bookings" labelPosition="center" />
-                        </div>
-                    )}
-
-                    {/* Completed Cards */}
-                    {sortedBookings
-                        .filter((booking) => booking.status !== 'In progress')
-                        .map((booking) => (
-                            <Card
-                                key={booking.id}
-                                padding="md"
-                                radius="md"
-                                shadow="xs"
-                                withBorder
-                                onClick={() => handleOpenDrawer(booking)}
-                            >
-                                <Stack>
-                                    {allBadge[booking.status]}
-                                    <Flex>
-                                        <Text lineClamp={2}>
-                                            {booking.from} to {booking.to}
-                                        </Text>
-                                        <Text ml="auto">{booking.price}</Text>
-                                    </Flex>
-                                    <Text size="sm" c="dimmed">
-                                        {booking.createdAt}
-                                    </Text>
-                                </Stack>
-                            </Card>
-                        ))}
+                    {bookings.filter((booking) => booking.status === 'In progress').map((booking) => (
+                        <Card key={booking.id} shadow="xs" padding="md" radius="md" withBorder onClick={() => handleOpenDrawer(booking)}>
+                            <Stack>
+                                {allBadge[booking.status]}
+                                <Flex>
+                                    <Text size='sm' lineClamp={2}>{booking.from} to {booking.to}</Text>
+                                    <Text className='ml-auto'>RM {booking.price || 'N/A'}</Text>
+                                </Flex>
+                                <Flex>
+                                    <Text size='sm' c='dimmed'>{convertToMalaysiaTime(booking.created_at)}</Text>
+                                    <Link className='flex items-center ml-auto text-blue-600'>
+                                        <Text size='sm' fw={500}>View Details</Text>
+                                        <IconArrowNarrowRight stroke={2} />
+                                    </Link>
+                                </Flex>
+                            </Stack>
+                        </Card>
+                    ))}
+                    <Divider my="lg" label="Completed Bookings" labelPosition="center" />
+                    {bookings.filter((booking) => booking.status !== 'In progress').map((booking) => (
+                        <Card key={booking.id} shadow="xs" padding="md" radius="md" withBorder onClick={() => handleOpenDrawer(booking)}>
+                            <Stack>
+                                {allBadge[booking.status]}
+                                <Flex>
+                                    <Text size='sm' lineClamp={2}>{booking.from} to {booking.to}</Text>
+                                    <Text className='ml-auto'>RM {booking.price || 'N/A'}</Text>
+                                </Flex>
+                                <Flex>
+                                    <Text size='sm' c='dimmed'>{convertToMalaysiaTime(booking.created_at)}</Text>
+                                    <Link className='flex items-center ml-auto text-blue-600'>
+                                        <Text size='sm' fw={500}>View Details</Text>
+                                        <IconArrowNarrowRight stroke={2} />
+                                    </Link>
+                                </Flex>
+                            </Stack>
+                        </Card>
+                    ))}
                 </ScrollArea>
             </Stack>
         </CommonLayout>
-    )
-}
+    );
+};
 
-export default TowBooking
+export default TowBooking;

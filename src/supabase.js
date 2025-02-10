@@ -61,3 +61,48 @@ export const getLocation = async () => {
         }
     }
 } 
+
+export const assignDriverToBooking = async (bookingId) => {
+    try {
+        // Find available tow drivers
+        const { data: drivers, error: driverError } = await adminSupabase
+            .from('profiles')
+            .select('id')
+            .eq('role', 'tow')
+            .eq('status', 'active');
+
+        if (driverError || !drivers || drivers.length === 0) {
+            console.log('No available tow drivers');
+            return { success: false, message: 'No available tow drivers' };
+        }
+
+        // Pick a random available driver
+        const driver = drivers[Math.floor(Math.random() * drivers.length)];
+
+        // Assign driver to booking
+        const { error: bookingError } = await adminSupabase
+            .from('bookings')
+            .update({ tow_id: driver.id, status: 'In progress' })
+            .eq('id', bookingId);
+
+        if (bookingError) {
+            throw new Error('Failed to update booking');
+        }
+
+        // Update driver status to 'working'
+        const { error: updateError } = await adminSupabase
+            .from('profiles')
+            .update({ status: 'working' })
+            .eq('id', driver.id);
+
+        if (updateError) {
+            throw new Error('Failed to update driver status');
+        }
+
+        console.log(`Driver ${driver.id} assigned successfully`);
+        return { success: true };
+    } catch (error) {
+        console.log('Error assigning driver: ', error);
+        return { success: false, message: error.message };
+    }
+};

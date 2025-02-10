@@ -10,6 +10,7 @@ import Pending from '../../components/Pending'
 import InProgress from '../../components/InProgress'
 import { useAuth } from '../../Context'
 import { supabase } from '../../supabase'
+import { assignDriverToBooking } from '../../supabase';
 import {
     IconCarFilled,
     IconMapPinFilled,
@@ -44,14 +45,43 @@ const RequestTow = () => {
     const [bookingStatus, setBookingStatus] = useState('')
 
     useEffect(() => {
+        if (!userData?.id) return;
+
+        const interval = setInterval(async () => {
+            const { data, error } = await supabase
+                .from('bookings')
+                .select('id, status')
+                .eq('user_id', userData.id)
+                .eq('status', 'Pending')
+                .maybeSingle();
+
+            if (data) {
+                setBookingId(data.id);
+                setBookingStatus(data.status);
+
+                const result = await assignDriverToBooking(data.id);
+                if (result.success) {
+                    console.log('Driver assigned');
+                } else {
+                    console.log('No available drivers, booking remains pending');
+                }
+            }
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, [userData.id]);
+
+    useEffect(() => {
         const checkPendingBooking = async () => {
             const { data, error } = await supabase
                 .from('bookings')
                 .select('id, status')
                 .eq('user_id', userData.id)
                 .in('status', ['Pending', 'In progress'])
-                .single()
-
+                .maybeSingle();
+            if (!data) {
+                return;
+            }
             if (error && error.code !== 'PGRST116') return
 
             if (data) {
@@ -76,7 +106,7 @@ const RequestTow = () => {
                 .from('bookings')
                 .select('status')
                 .eq('id', bookingId)
-                .single();
+                .maybeSingle();
 
             if (!error && data.status !== bookingStatus) {
                 setBookingStatus(data.status);
@@ -85,7 +115,7 @@ const RequestTow = () => {
         };
 
         checkStatus();
-        const interval = setInterval(checkStatus, 5000);
+        const interval = setInterval(checkStatus, 1000);
 
         return () => clearInterval(interval);
     }, [bookingId, bookingStatus]);
@@ -171,7 +201,7 @@ const RequestTow = () => {
             toggle()
             const car_photo_url = await uploadImageToSupabase()
 
-            const { error } = await supabase
+            const { data, error } = await supabase
                 .from('bookings')
                 .insert({
                     user_id: userData.id,
@@ -184,8 +214,11 @@ const RequestTow = () => {
                     vehicle_color: vehicleDetails.color,
                     vehicle_plate: vehicleDetails.numberPlate
                 })
+                .select('id')
+                .single();
 
             if (error) throw error
+
             notifications.show({
                 title: 'Booking',
                 message: 'Booking Requested',
