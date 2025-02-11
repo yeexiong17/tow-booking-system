@@ -78,6 +78,7 @@ const LocationDetails = ({ locationDetails, setLocationDetails }) => {
                                 { latitude: locationDetails.fromCoordinates.latitude, longitude: locationDetails.fromCoordinates.longitude },
                                 { latitude: locationDetails.toCoordinates.latitude, longitude: locationDetails.toCoordinates.longitude },
                             ]}
+                            center={{ latitude: locationDetails.fromCoordinates.latitude, longitude: locationDetails.toCoordinates.longitude }}
                         />
                     </div>
                 )

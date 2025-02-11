@@ -117,6 +117,8 @@ const TowBooking = () => {
                             <Text size="sm" fw={500}>Status:</Text>
                             {allBadge[selectedData.status]}
                         </Flex>
+                        <Text size="sm" fw={500}>From: {selectedData.from_location}</Text>
+                        <Text size="sm" fw={500}>To: {selectedData.to_location}</Text>
                         <Text size="sm" fw={500}>Created At: {convertToMalaysiaTime(selectedData.created_at)}</Text>
                         <Text size="sm" fw={500}>Completed At: {selectedData.completed_at ? convertToMalaysiaTime(selectedData.completed_at) : '-'}</Text>
                     </Stack>
@@ -157,7 +159,7 @@ const TowBooking = () => {
                             <Stack>
                                 {allBadge[booking.status]}
                                 <Flex>
-                                    <Text size='sm' lineClamp={2}>{booking.from} to {booking.to}</Text>
+                                    <Text size='sm' lineClamp={2}>{booking.from_location} to {booking.to_location}</Text>
                                     <Text className='ml-auto'>RM {booking.price || 'N/A'}</Text>
                                 </Flex>
                                 <Flex>
@@ -176,7 +178,7 @@ const TowBooking = () => {
                             <Stack>
                                 {allBadge[booking.status]}
                                 <Flex>
-                                    <Text size='sm' lineClamp={2}>{booking.from} to {booking.to}</Text>
+                                    <Text size='sm' lineClamp={2}>{booking.from_location} to {booking.to_location}</Text>
                                     <Text className='ml-auto'>RM {booking.price || 'N/A'}</Text>
                                 </Flex>
                                 <Flex>

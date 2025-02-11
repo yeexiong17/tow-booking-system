@@ -9,22 +9,21 @@ import Booking2 from '../images/booking-2.jpg'
 
 const Home = () => {
     const { signOut, userData } = useAuth()
-    const [hasPhone, setHasPhone] = useState(true)
-    const { user_metadata } = userData
+    const [hasPhone, setHasPhone] = useState(false)
     const navigate = useNavigate()
 
     useEffect(() => {
-        if (userData.phone.length > 0) {
+        if (userData?.phone) {
             setHasPhone(true)
         }
-    }, [])
+    }, [userData])
 
     return (
         <CommonLayout>
             <PhoneModal hasPhone={hasPhone} />
 
             <Stack>
-                <p className="font-bold text-2xl text-neutral-800 mb-5">Welcome, {`${user_metadata.name}`}</p>
+                <p className="font-bold text-2xl text-neutral-800 mb-5">Welcome, {`${userData?.name}`}</p>
                 <Image
                     radius="md"
                     src={Booking2}

@@ -34,7 +34,7 @@ function App() {
       if (session) {
         console.log(session.user)
         setAuth(session.user)
-        setUserData(session.user)
+        getUserDetails(session.user.id)
 
         if (session.user.user_metadata.role === 'tow') {
           getTowDriverDetails(session.user.id)
@@ -50,6 +50,15 @@ function App() {
       authListener.subscription.unsubscribe()
     }
   }, [])
+
+  const getUserDetails = async (userId) => {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+
+    setUserData(data[0])
+  }
 
   useEffect(() => {
     let locationWatcher = null

@@ -1,9 +1,11 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { Button, Stack, TextInput } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
 import CommonLayout from '../components/CommonLayout'
 import { IconStar } from '@tabler/icons-react'
+import { supabase } from '../supabase'
+import { Link } from 'react-router-dom'
 
 const StarRating = ({ rating, setRating }) => {
     return (
@@ -22,30 +24,67 @@ const StarRating = ({ rating, setRating }) => {
 }
 
 const Feedback = () => {
+    const location = useLocation()
+    const query = new URLSearchParams(location.search)
+    const userId = query.get('userId')
+    const bookingId = query.get('bookingId')
+
+    // Log the values to check if they are being set correctly
+    console.log('User ID:', userId)
+    console.log('Booking ID:', bookingId)
+
     const navigate = useNavigate()
     const [serviceRating, setServiceRating] = useState('')
     const [systemRating, setSystemRating] = useState('')
     const [comments, setComments] = useState('')
+    const [error, setError] = useState(null)
+    const [success, setSuccess] = useState(false)
+    const [isSubmitted, setIsSubmitted] = useState(false)
 
-    const handleFeedback = () => {
-        if (!serviceRating || !systemRating) {
-            notifications.show({
-                title: 'Error',
-                message: 'Select Rating',
-                className: 'w-5/6 ml-auto',
-                position: 'top-right',
-                color: 'red'
-            })
+    const handleSubmit = async (e) => {
+        e.preventDefault()
+        setError(null)
+        setSuccess(false)
+
+        console.log('Submitting feedback:', { userId, bookingId, serviceRating, systemRating, comments })
+
+        if (isSubmitted) {
+            setError('You have already submitted feedback for this booking.')
             return
         }
-        notifications.show({
-            title: 'Thank You!',
-            message: 'Your feedback has been submitted.',
-            className: 'w-5/6 ml-auto',
-            position: 'top-right',
-            color: 'green',
-        })
-        navigate('/home')
+
+        try {
+            const { data, error } = await supabase
+                .from('feedbacks')
+                .insert([
+                    {
+                        user_id: userId,
+                        booking_id: bookingId,
+                        service_rating: serviceRating,
+                        system_rating: systemRating,
+                        comment: comments
+                    }
+                ])
+                .select()
+
+            if (error) throw error
+
+            setSuccess(true)
+            setIsSubmitted(true)
+            setServiceRating('')
+            setSystemRating('')
+            setComments('')
+            notifications.show({
+                title: 'Thank You!',
+                message: 'Your feedback has been submitted.',
+                className: 'w-5/6 ml-auto',
+                position: 'top-right',
+                color: 'green',
+            })
+            navigate('/home')
+        } catch (error) {
+            setError('Error submitting feedback: ' + error.message)
+        }
     }
 
     return (
@@ -67,9 +106,19 @@ const Feedback = () => {
                 onChange={(event) => setComments(event.currentTarget.value)}
             />
             <Stack>
-                <Button onClick={() => { handleFeedback() }} size="md" radius="md">Submit Feedback</Button>
+                <Button 
+                    onClick={handleSubmit} 
+                    size="md" 
+                    radius="md" 
+                    disabled={isSubmitted}
+                    style={{ backgroundColor: isSubmitted ? 'gray' : undefined }}
+                >
+                    {isSubmitted ? 'Feedback Submitted' : 'Submit Feedback'}
+                </Button>
                 <Button onClick={() => navigate('/home')} size="md" radius="md">Cancel</Button>
             </Stack>
+            {error && <p style={{ color: 'red' }}>{error}</p>}
+            {success && <p style={{ color: 'green' }}>Feedback submitted successfully!</p>}
         </CommonLayout>
     )
 }

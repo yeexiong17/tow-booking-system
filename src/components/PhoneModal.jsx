@@ -5,13 +5,14 @@ import { Button, Modal, PinInput, Stack, Tabs, Transition } from "@mantine/core"
 import { useDisclosure } from "@mantine/hooks"
 import { notifications } from "@mantine/notifications"
 
+import { useAuth } from '../Context'
 import { supabase } from "../supabase"
-
 
 const PhoneModal = ({ hasPhone }) => {
     const [opened, { open, close }] = useDisclosure(false)
 
     const [activeTab, setActiveTab] = useState('first')
+    const { userData } = useAuth()
 
     const [phone, setPhone] = useState('')
     const [otp, setOTP] = useState('')
@@ -19,7 +20,7 @@ const PhoneModal = ({ hasPhone }) => {
     const [transOpen, setTransOpen] = useState(false)
 
     useEffect(() => {
-        if (!hasPhone) {
+        if (hasPhone) {
             open()
         }
     }, [])
@@ -27,17 +28,17 @@ const PhoneModal = ({ hasPhone }) => {
     const handleGetOTP = async () => {
         let trimPhone = phone.trim()
 
-        // if (!trimPhone) {
-        //     notifications.show({
-        //         title: 'Input Error',
-        //         message: 'Please enter your phone number',
-        //         className: 'w-5/6 ml-auto',
-        //         position: 'top-right',
-        //         color: 'red'
-        //     })
+        if (!trimPhone) {
+            notifications.show({
+                title: 'Input Error',
+                message: 'Please enter your phone number',
+                className: 'w-5/6 ml-auto',
+                position: 'top-right',
+                color: 'red'
+            })
 
-        //     return
-        // }
+            return
+        }
 
         // const { error } = await supabase.auth.updateUser({
         //     phone: trimPhone
@@ -69,27 +70,35 @@ const PhoneModal = ({ hasPhone }) => {
 
     const handleVerifyOTP = async () => {
         let trimPhone = phone.trim()
-        let trimOTP = otp.trim()
+        console.log(trimPhone)
 
-        // const { error } = await supabase.auth.verifyOtp({
-        //     phone: trimPhone,
-        //     token: trimOTP,
-        //     type: "sms",
-        // })
+        try {
+            const { error } = await supabase
+                .from('profiles')
+                .update({ phone: trimPhone })
+                .eq('id', userData.id)
 
-        // if (error) {
-        //     notifications.show({
-        //         title: 'OTP Invalid',
-        //         message: error.message,
-        //         className: 'w-5/6 ml-auto',
-        //         position: 'top-right',
-        //         color: 'red'
-        //     })
-
-        //     return
-        // }
-
-        close()
+            if (!error) {
+                notifications.show({
+                    title: 'Phone Number Updated',
+                    message: 'Phone number updated successfully',
+                    className: 'w-5/6 ml-auto',
+                    position: 'top-right',
+                    color: 'green'
+                })
+            }
+        } catch (error) {
+            notifications.show({
+                title: 'Phone Number Update Error',
+                message: 'Failed to update phone number',
+                className: 'w-5/6 ml-auto',
+                position: 'top-right',
+                color: 'red'
+            })
+        }
+        finally {
+            close()
+        }
     }
 
     return (
