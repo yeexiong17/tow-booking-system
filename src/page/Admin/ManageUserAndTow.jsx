@@ -1,37 +1,35 @@
-import { useEffect, useState } from 'react'
-
-import { IconPencil, IconTrash } from '@tabler/icons-react'
-import { ActionIcon, Anchor, Avatar, Badge, Button, Card, Drawer, Flex, Group, Image, ScrollArea, Space, Stack, Table, Text } from '@mantine/core'
-import CommonLayout from '../../components/CommonLayout'
-import { useDisclosure } from '@mantine/hooks'
-import { supabase } from '../../supabase'
-import { convertToMalaysiaTime } from "../../helpers/HelperFunction"
+import { useEffect, useState } from 'react';
+import { IconPencil, IconTrash } from '@tabler/icons-react';
+import { ActionIcon, Anchor, Avatar, Badge, Button, Card, Drawer, Flex, Group, Image, ScrollArea, Space, Stack, Table, Text, Select } from '@mantine/core';
+import CommonLayout from '../../components/CommonLayout';
+import { useDisclosure } from '@mantine/hooks';
+import { supabase } from '../../supabase';
+import { convertToMalaysiaTime } from "../../helpers/HelperFunction";
 
 const ManageUserAndTow = () => {
-
-    const [opened, { open, close }] = useDisclosure(false)
-    const [userData, setUserData] = useState([])
-    const [towDataProfiles, setTowDataProfiles] = useState([])
+    const [opened, { open, close }] = useDisclosure(false);
+    const [userData, setUserData] = useState([]);
+    const [towDataProfiles, setTowDataProfiles] = useState([]);
     const [selectedUser, setSelectedUser] = useState(null);
 
     useEffect(() => {
-        fetchUserData()
-        fetchTowData()
-    }, [])
+        fetchUserData();
+        fetchTowData();
+    }, []);
 
     const fetchUserData = async () => {
         try {
             const { data, error } = await supabase
                 .from('profiles')
                 .select()
-                .eq('role', 'user')
+                .eq('role', 'user');
 
-            if (error) throw new Error(error)
-            setUserData(data)
+            if (error) throw new Error(error);
+            setUserData(data);
         } catch (error) {
-            console.log(error)
+            console.log(error);
         }
-    }
+    };
 
     const fetchTowData = async () => {
         try {
@@ -70,11 +68,29 @@ const ManageUserAndTow = () => {
         }
     };
 
-
-
     const handleViewDetails = (user) => {
         setSelectedUser(user);
         open();
+    };
+
+    const handleStatusChange = async (newStatus) => {
+        if (!selectedUser) return;
+
+        try {
+            // Update the status in the profiles table
+            const { error } = await supabase
+                .from('profiles')
+                .update({ status: newStatus })
+                .eq('id', selectedUser.id);
+
+            if (error) throw error;
+
+            // Refresh the data
+            fetchTowData();
+            setSelectedUser(prev => ({ ...prev, status: newStatus })); // Update local state
+        } catch (error) {
+            console.error("Error updating status:", error);
+        }
     };
 
     const userRows = userData.map((item, index) => (
@@ -103,7 +119,7 @@ const ManageUserAndTow = () => {
                 </Group>
             </Table.Td>
         </Table.Tr>
-    ))
+    ));
 
     const towRows = towDataProfiles.map((item, index) => (
         <Table.Tr key={index}>
@@ -125,7 +141,7 @@ const ManageUserAndTow = () => {
                 </Group>
             </Table.Td>
         </Table.Tr>
-    ))
+    ));
 
     return (
         <CommonLayout>
@@ -212,9 +228,9 @@ const ManageUserAndTow = () => {
                                     <p className='font-bold'>Identification Details</p>
                                     <Space h="xs" />
                                     <Stack className='items-center'>
-                                        <Image 
-                                            radius="md" 
-                                            src={selectedUser.identification_card_photo_url || "https://cdn-icons-png.flaticon.com/512/179/179573.png"} 
+                                        <Image
+                                            radius="md"
+                                            src={selectedUser.identification_card_photo_url || "https://cdn-icons-png.flaticon.com/512/179/179573.png"}
                                         />
                                         <div>
                                             <Text><span className='font-bold'>Full Name: </span>{selectedUser.full_name}</Text>
@@ -228,9 +244,9 @@ const ManageUserAndTow = () => {
                                     <p className='font-bold'>Driving License</p>
                                     <Space h="xs" />
                                     <Stack className='items-center'>
-                                        <Image 
-                                            radius="md" 
-                                            src={selectedUser.license_photo_url || "https://cdn-icons-png.flaticon.com/512/179/179573.png"} 
+                                        <Image
+                                            radius="md"
+                                            src={selectedUser.license_photo_url || "https://cdn-icons-png.flaticon.com/512/179/179573.png"}
                                             styles={() => ({
                                                 root: {
                                                     aspectRatio: '3/2',
@@ -253,6 +269,21 @@ const ManageUserAndTow = () => {
                                     </Stack>
                                 </Card>
                             )}
+                            {(selectedUser.role === 'tow' && selectedUser.status !== 'working') &&(
+                                <Card shadow="xs" padding="sm" radius="md" withBorder>
+                                    <p className='font-bold'>Status</p>
+                                    <Space h="xs" />
+                                    <Select
+                                        data={[
+                                            { value: 'active', label: 'Active' },
+                                            { value: 'unactive', label: 'Unactive' }
+                                        ]}
+                                        value={selectedUser.status}
+                                        onChange={(value) => handleStatusChange(value)}
+                                        placeholder="Select status"
+                                    />
+                                </Card>
+                            )}
                         </Stack>
                     </ScrollArea>
                 )}
@@ -261,4 +292,4 @@ const ManageUserAndTow = () => {
     );
 };
 
-export default ManageUserAndTow
+export default ManageUserAndTow;
