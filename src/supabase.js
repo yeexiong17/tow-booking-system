@@ -11,57 +11,6 @@ const options = {
 export const supabase = createClient(process.env.REACT_APP_SUPABASE_URL, process.env.REACT_APP_SUPABASE_ANON_KEY, options)
 export const adminSupabase = createClient(process.env.REACT_APP_SUPABASE_URL, process.env.REACT_APP_SERVICE_ROLE_KEY, options)
 
-// Location Table
-export const createNewLocation = async (locationData) => {
-
-    const { booking_id, latitude, longitude } = locationData
-
-    try {
-        const { data, error } = await supabase
-            .from('location')
-            .insert({ booking_id, latitude, longitude })
-            .select()
-
-        if (error) {
-            throw new Error(error)
-        }
-
-        return { success: true, data: data }
-    } catch (error) {
-        console.log('Error creating new location: ', error)
-
-        return {
-            success: false,
-            message: 'Something went wrong'
-        }
-    }
-}
-
-export const getLocation = async () => {
-    try {
-        const { data, error } = await supabase
-            .from('location')
-            .select()
-            .eq('booking_id', 1)
-
-        if (error) {
-            throw new Error(error)
-        }
-
-        return {
-            success: true,
-            data
-        }
-
-        console.log(data)
-    } catch (error) {
-        return {
-            success: false,
-            message: "An error has occured: " + error
-        }
-    }
-} 
-
 export const assignDriverToBooking = async (bookingId) => {
     try {
         // Find available tow drivers
@@ -104,5 +53,27 @@ export const assignDriverToBooking = async (bookingId) => {
     } catch (error) {
         console.log('Error assigning driver: ', error);
         return { success: false, message: error.message };
+    }
+};
+
+export const updateUserLocation = async (userId, latitude, longitude) => {
+    try {
+        const { data, error } = await supabase
+            .from('locations')
+            .upsert(
+                {
+                    user_id: userId,
+                    latitude: latitude,
+                    longitude: longitude,
+                    updated_at: new Date().toISOString()
+                },
+                { onConflict: 'user_id' }
+            );
+
+        if (error) throw error;
+        return { success: true, data };
+    } catch (error) {
+        console.error('Error updating location:', error);
+        return { success: false, error: error.message };
     }
 };

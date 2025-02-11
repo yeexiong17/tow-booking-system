@@ -1,23 +1,48 @@
-import { useState, useEffect } from 'react';
-import { Badge, Button, Divider, Group, Image, Card, Drawer, Flex, ScrollArea, Space, Stack, Text } from '@mantine/core';
-import CommonLayout from '../../components/CommonLayout';
-import { Link } from 'react-router-dom';
-import { useDisclosure } from '@mantine/hooks';
-import { IconArrowNarrowRight, IconMapPinFilled } from '@tabler/icons-react';
-import Map from '../../components/Map';
-import { supabase } from '../../supabase';
-import { useAuth } from '../../Context';
-import { convertToMalaysiaTime } from '../../helpers/HelperFunction';
+import { useState, useEffect } from 'react'
+import { Badge, Button, Divider, Group, Image, Card, Drawer, Flex, ScrollArea, Space, Stack, Text } from '@mantine/core'
+import CommonLayout from '../../components/CommonLayout'
+import { Link } from 'react-router-dom'
+import { useDisclosure } from '@mantine/hooks'
+import { IconArrowNarrowRight } from '@tabler/icons-react'
+import Map from '../../components/Map'
+import { supabase } from '../../supabase'
+import { useAuth } from '../../Context'
+import { convertToMalaysiaTime } from '../../helpers/HelperFunction'
 
 const TowBooking = () => {
-    const [opened, { open, close }] = useDisclosure(false);
-    const [bookings, setBookings] = useState([]);
-    const { userData } = useAuth();
-    const [selectedData, setSelectedData] = useState({});
+    const [opened, { open, close }] = useDisclosure(false)
+    const [bookings, setBookings] = useState([])
+    const { userData, liveLocation } = useAuth()
+    const [selectedData, setSelectedData] = useState([])
+    const [userLiveLocation, setUserLiveLocation] = useState({ latitude: 0, longitude: 0 })
 
     useEffect(() => {
-        fetchTowBookings();
-    }, []);
+        fetchTowBookings()
+    }, [])
+
+    useEffect(() => {
+        if (selectedData.length === 0) return
+
+        const interval = setInterval(getUserLocation, 2000)
+
+        return () => clearInterval(interval)
+    }, [selectedData])
+
+    const getUserLocation = async () => {
+        const filteredData = bookings.filter(item => item.status === "In progress")
+        console.log('getting user location...')
+        if (filteredData.length > 0) {
+            const { data, error } = await supabase
+                .from('locations')
+                .select()
+                .eq('user_id', filteredData[0].user_id)
+
+            console.log(data[0].latitude, data[0].longitude)
+            if (data && data.length > 0) {
+                setUserLiveLocation({ latitude: data[0].latitude, longitude: data[0].longitude })
+            }
+        }
+    }
 
     const fetchTowBookings = async () => {
         try {
@@ -25,69 +50,73 @@ const TowBooking = () => {
                 .from('bookings')
                 .select()
                 .eq('tow_id', userData.id)
-                .order('created_at', { ascending: false });
+                .order('created_at', { ascending: false })
 
             if (error) throw new Error(error);
             const statusOrder = { "Pending": 1, "In progress": 2, "Completed": 3, "Canceled": 4 };
             const sortedData = data.sort((a, b) => statusOrder[a.status] - statusOrder[b.status] || new Date(b.created_at) - new Date(a.created_at));
-            setBookings(sortedData);
+            setBookings(sortedData)
         } catch (error) {
-            console.log(error);
+            console.log(error)
         }
-    };
+    }
 
     const allBadge = {
         'Pending': <Badge size="sm" color="blue">Pending</Badge>,
         'In progress': <Badge size="sm" color="yellow">In progress</Badge>,
         'Completed': <Badge size="sm" color="green">Completed</Badge>,
         'Canceled': <Badge size="sm" color="red">Canceled</Badge>,
-    };
+    }
 
     const handleOpenDrawer = (booking) => {
-        setSelectedData(booking);
-        open();
-    };
+        console.log(booking)
+        setSelectedData(booking)
+        open()
+    }
 
     const handleFinishBooking = async () => {
         try {
-            if (!selectedData.id || selectedData.status !== 'In progress') return;
+            if (!selectedData.id || selectedData.status !== 'In progress') return
 
             // Update the booking status to "Completed"
             const { error: bookingError } = await supabase
                 .from('bookings')
                 .update({ status: 'Completed', completed_at: new Date().toISOString() })
-                .eq('id', selectedData.id);
+                .eq('id', selectedData.id)
 
-            if (bookingError) throw bookingError;
+            if (bookingError) throw bookingError
 
             // Update the driver's status in the profiles table
             const { error: profileError } = await supabase
                 .from('profiles')
                 .update({ status: 'active' })
-                .eq('id', selectedData.tow_id);
+                .eq('id', selectedData.tow_id)
 
-            if (profileError) throw profileError;
+            if (profileError) throw profileError
 
             // Update the state to reflect the changes
             setBookings((prevBookings) =>
                 prevBookings.map((b) =>
                     b.id === selectedData.id ? { ...b, status: 'Completed', completed_at: new Date().toISOString() } : b
                 )
-            );
+            )
 
             // Close the drawer
-            close();
+            close()
         } catch (error) {
-            console.error("Error updating booking and profile:", error);
+            console.error("Error updating booking and profile:", error)
         }
-    };
+    }
 
     return (
         <CommonLayout>
             <Drawer position='bottom' size='100%' opened={opened} onClose={close} title="Booking Details">
                 <Card padding="md" radius="md" withBorder>
                     <Stack>
-                        <Text size="sm" fw={500}>Status: {allBadge[selectedData.status]}</Text>
+                        <Flex align="center" gap="xs">
+                            <Text size="sm" fw={500}>Status:</Text>
+                            {allBadge[selectedData.status]}
+                        </Flex>
                         <Text size="sm" fw={500}>Created At: {convertToMalaysiaTime(selectedData.created_at)}</Text>
                         <Text size="sm" fw={500}>Completed At: {selectedData.completed_at ? convertToMalaysiaTime(selectedData.completed_at) : '-'}</Text>
                     </Stack>
@@ -107,7 +136,7 @@ const TowBooking = () => {
                 </Card>
                 <Space h="lg" />
                 <Card padding="md" radius="md" withBorder>
-                    <Map bookingLocation={[selectedData.from_coordinates, selectedData.to_coordinates]} />
+                    <Map bookingLocation={[userLiveLocation, selectedData.to_coordinates]} center={liveLocation} />
                 </Card>
                 {selectedData.status === 'In progress' && (
                     <Button

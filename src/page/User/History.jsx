@@ -1,13 +1,11 @@
 import { useState, useEffect } from 'react'
-
 import { Badge, Card, Drawer, Flex, Group, Image, ScrollArea, Space, Stack, Text, Button } from '@mantine/core'
 import CommonLayout from '../../components/CommonLayout'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { IconArrowNarrowRight, IconMapPinFilled } from '@tabler/icons-react'
 import { useDisclosure } from '@mantine/hooks'
 import Map from '../../components/Map'
 import { supabase } from '../../supabase'
-import { notifications } from '@mantine/notifications'
 import { useAuth } from '../../Context'
 import { convertToMalaysiaTime } from '../../helpers/HelperFunction'
 
@@ -15,8 +13,9 @@ const History = () => {
 
     const [opened, { open, close }] = useDisclosure(false)
     const [bookingData, setBookingData] = useState([])
-    const { userData } = useAuth()
-    const [selectedData, setSelectedData] = useState({})
+    const { userData, liveLocation } = useAuth()
+    const [selectedData, setSelectedData] = useState([])
+    const [towLiveLocation, setTowLiveLocation] = useState({ latitude: 0, longitude: 0 })
 
     const allBadge = {
         "Pending": <Badge size='sm' color="blue">Pending</Badge>,
@@ -28,6 +27,54 @@ const History = () => {
     useEffect(() => {
         fetchBookingData()
     }, [])
+
+    useEffect(() => {
+        if (selectedData.length === 0) return
+
+        const interval = setInterval(getTowLocation, 2000)
+
+        return () => clearInterval(interval)
+    }, [selectedData])
+
+    const getTowLocation = async () => {
+        const filteredData = bookingData.filter(item => item.status === "In progress")
+        console.log('getting tow location...')
+        if (filteredData.length > 0) {
+            const { data, error } = await supabase
+                .from('locations')
+                .select()
+                .eq('user_id', filteredData[0].tow_id)
+
+            console.log(data[0].latitude, data[0].longitude)
+            if (data && data.length > 0) {
+                setTowLiveLocation({ latitude: data[0].latitude, longitude: data[0].longitude })
+            }
+        }
+    }
+
+    const testLocationUpdate = async () => {
+        try {
+            // Generate random slight variations in location
+            const testLocation = {
+                latitude: 2.9213 + (Math.random() - 0.5) * 0.01,  // Random variation around KL area
+                longitude: 101.6559 + (Math.random() - 0.5) * 0.01
+            };
+
+            const { error } = await supabase
+                .from('locations')
+                .upsert({
+                    user_id: userData.id,
+                    latitude: testLocation.latitude,
+                    longitude: testLocation.longitude,
+                    updated_at: new Date().toISOString()
+                }, { onConflict: 'user_id' });
+
+            if (error) throw error;
+            console.log('Test location updated:', testLocation);
+        } catch (error) {
+            console.error('Error updating test location:', error);
+        }
+    };
 
     const fetchBookingData = async () => {
         try {
@@ -44,7 +91,6 @@ const History = () => {
                 if (statusOrder[a.status] !== statusOrder[b.status]) {
                     return statusOrder[a.status] - statusOrder[b.status]
                 }
-                // If statuses are the same, sort by latest created_at
                 return new Date(b.created_at) - new Date(a.created_at)
             })
 
@@ -56,13 +102,19 @@ const History = () => {
 
     const handleDrawerOpen = (index) => {
         const data = bookingData[index]
+
         setSelectedData(data)
         open()
     }
 
+    const handleDrawerClose = () => {
+        setSelectedData([])
+        close()
+    }
+
     return (
         <CommonLayout>
-            <Drawer position='bottom' size='100%' opened={opened} onClose={close} title="Booking Details"
+            <Drawer position='bottom' size='100%' opened={opened} onClose={() => handleDrawerClose()} title="Booking Details"
                 styles={() => ({
                     title: {
                         fontSize: '1.2rem',
@@ -131,7 +183,7 @@ const History = () => {
                             </Flex>
                         </Stack>
 
-                        <Map bookingLocation={[selectedData.from_coordinates, selectedData.to_coordinates]} />
+                        <Map bookingLocation={[selectedData.from_coordinates, towLiveLocation]} center={liveLocation} />
                     </Stack>
                 </Card>
 
@@ -190,8 +242,8 @@ const History = () => {
 
                 </ScrollArea>
             </Stack>
-
-        </CommonLayout >
+            <Button onClick={() => testLocationUpdate()}>Test Location Update</Button>
+        </CommonLayout>
     )
 }
 

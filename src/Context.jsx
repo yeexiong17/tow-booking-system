@@ -10,6 +10,7 @@ export const AuthProvider = ({ children }) => {
     const [userData, setUserData] = useState(null)
     const [visible, setVisible] = useState(false)
     const [width, setWidth] = useState(window.innerWidth)
+    const [liveLocation, setLiveLocation] = useState({ latitude: 0, longitude: 0 })
 
     const isMobile = width <= 768
 
@@ -33,7 +34,7 @@ export const AuthProvider = ({ children }) => {
     }
 
     return (
-        <AuthContext.Provider value={{ signOut, auth, setAuth, userData, setUserData, visible, toggle, isMobile }}>
+        <AuthContext.Provider value={{ liveLocation, setLiveLocation, signOut, auth, setAuth, userData, setUserData, visible, toggle, isMobile }}>
             {children}
         </AuthContext.Provider>
     )

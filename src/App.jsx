@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 
-import { supabase } from './supabase'
+import { supabase, updateUserLocation } from './supabase'
 import { useAuth } from './Context'
 
 import ProtectedRoute from './components/ProtectedRoute'
@@ -26,7 +26,7 @@ import Rejected from './page/Tow/Rejected'
 
 function App() {
   const [loading, setLoading] = useState(true)
-  const { auth, setAuth, setUserData } = useAuth()
+  const { auth, setAuth, setUserData, setLiveLocation } = useAuth()
   const [towDriverDetails, setTowDriverDetails] = useState(null)
 
   useEffect(() => {
@@ -50,6 +50,37 @@ function App() {
       authListener.subscription.unsubscribe()
     }
   }, [])
+
+  useEffect(() => {
+    let locationWatcher = null
+
+    if (auth && (auth.user_metadata.role === 'tow' || auth.user_metadata.role === 'user')) {
+      if ("geolocation" in navigator) {
+        locationWatcher = navigator.geolocation.watchPosition(
+          async (position) => {
+            const { latitude, longitude } = position.coords
+            console.log(latitude, longitude)
+            setLiveLocation({ latitude, longitude })
+            updateUserLocation(auth.id, latitude, longitude)
+          },
+          (error) => {
+            console.error('Error getting location:', error)
+          },
+          {
+            enableHighAccuracy: true,
+            maximumAge: 30000,
+            timeout: 27000
+          }
+        )
+      }
+    }
+
+    return () => {
+      if (locationWatcher) {
+        navigator.geolocation.clearWatch(locationWatcher);
+      }
+    };
+  }, [auth]);
 
   const getTowDriverDetails = async (userId) => {
     try {
