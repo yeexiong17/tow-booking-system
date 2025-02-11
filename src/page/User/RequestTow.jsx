@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import CommonLayout from '../../components/CommonLayout'
-import { Button, Group, Stepper, TextInput } from '@mantine/core'
+import { Button, Group, Stepper } from '@mantine/core'
 import VehicleDetails from '../../components/VehicleDetails'
 import LocationDetails from '../../components/LocationDetails'
 import { notifications } from '@mantine/notifications'
@@ -39,10 +39,6 @@ const RequestTow = () => {
         toLocation: '',
         toCoordinates: null
     })
-
-    // New state for user input locations
-    const [fromLocation, setFromLocation] = useState('')
-    const [toLocation, setToLocation] = useState('')
 
     const [paymentMethod, setPaymentMethod] = useState('')
     const [bookingId, setBookingId] = useState(null)
@@ -216,9 +212,7 @@ const RequestTow = () => {
                     vehicle_type: vehicleDetails.type,
                     vehicle_model: vehicleDetails.model,
                     vehicle_color: vehicleDetails.color,
-                    vehicle_plate: vehicleDetails.numberPlate,
-                    from_location: fromLocation,
-                    to_location: toLocation
+                    vehicle_plate: vehicleDetails.numberPlate
                 })
                 .select('id')
                 .single();
@@ -314,18 +308,6 @@ const RequestTow = () => {
                     </Stepper.Step>
                     <Stepper.Step icon={<IconMapPinFilled size={20} />} label="Location">
                         <LocationDetails locationDetails={locationDetails} setLocationDetails={setLocationDetails} />
-                        <TextInput
-                            label="From Location"
-                            value={fromLocation}
-                            onChange={(event) => setFromLocation(event.currentTarget.value)}
-                            placeholder="Enter your starting location"
-                        />
-                        <TextInput
-                            label="To Location"
-                            value={toLocation}
-                            onChange={(event) => setToLocation(event.currentTarget.value)}
-                            placeholder="Enter your destination"
-                        />
                     </Stepper.Step>
                     <Stepper.Step icon={<IconLoader size={20} />} label="Pending">
                         <Pending />
