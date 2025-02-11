@@ -75,7 +75,10 @@ const History = () => {
             >
                 <Card padding="md" radius="md" withBorder>
                     <Stack>
-                        <Text size="sm" fw={500}>Status: <span className='font-normal'>{allBadge[selectedData.status]}</span></Text>
+                        <Flex align="center" gap="xs">
+                            <Text size="sm" fw={500}>Status:</Text>
+                            {allBadge[selectedData.status]}
+                        </Flex>
                         <Text size="sm" fw={500}>Created At: <span className='font-normal'>{convertToMalaysiaTime(selectedData.created_at)}</span></Text>
                         <Text size="sm" fw={500}>Completed At: <span className='font-normal'>{selectedData.completed_at ? convertToMalaysiaTime(selectedData.completed_at) : '-'}</span></Text>
                     </Stack>
@@ -102,7 +105,7 @@ const History = () => {
                 <Space h="lg" />
                 <Card padding="md" radius="md" withBorder>
                     <Stack gap='xs' className='mt-4'>
-                        <div className='flex flex-col'>
+                        <Stack>
                             <Flex>
                                 <IconMapPinFilled className='text-blue-500 mr-2' stroke={2} />
                                 <Text className='flex items-center' fw={500}>
@@ -115,8 +118,8 @@ const History = () => {
                                     Persiaran Multimedia, 63100 Cyberjaya, Selangor
                                 </Text>
                             </Flex>
-                        </div>
-                        <div>
+                        </Stack>
+                        <Stack>
                             <Flex>
                                 <IconMapPinFilled className='text-red-500 mr-2' stroke={2} />
                                 <Text className='flex items-center' fw={500}>
@@ -129,7 +132,7 @@ const History = () => {
                                     Jalan Ayer Keroh Lama, 75450 Bukit Beruang, Melaka
                                 </Text>
                             </Flex>
-                        </div>
+                        </Stack>
 
                         <Map bookingLocation={[selectedData.from_coordinates, selectedData.to_coordinates]} />
                     </Stack>
@@ -140,7 +143,7 @@ const History = () => {
                 </Button> */}
             </Drawer>
             <Stack>
-                <p className="font-bold text-2xl text-neutral-800 mb-5">History</p>
+                <Text className="font-bold text-2xl text-neutral-800 mb-5">History</Text>
                 <ScrollArea className='h-full'>
                     {
                         bookingData.length > 0
