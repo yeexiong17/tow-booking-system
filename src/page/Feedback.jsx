@@ -5,7 +5,7 @@ import { notifications } from '@mantine/notifications'
 import CommonLayout from '../components/CommonLayout'
 import { IconStar } from '@tabler/icons-react'
 import { supabase } from '../supabase'
-import { Link } from 'react-router-dom'
+import { useAuth } from '../Context'
 
 const StarRating = ({ rating, setRating }) => {
     return (
@@ -24,6 +24,7 @@ const StarRating = ({ rating, setRating }) => {
 }
 
 const Feedback = () => {
+    const { userData } = useAuth()
     const location = useLocation()
     const query = new URLSearchParams(location.search)
     const userId = query.get('userId')
@@ -38,18 +39,20 @@ const Feedback = () => {
     const [systemRating, setSystemRating] = useState('')
     const [comments, setComments] = useState('')
     const [error, setError] = useState(null)
-    const [success, setSuccess] = useState(false)
     const [isSubmitted, setIsSubmitted] = useState(false)
 
     const handleSubmit = async (e) => {
         e.preventDefault()
         setError(null)
-        setSuccess(false)
 
         console.log('Submitting feedback:', { userId, bookingId, serviceRating, systemRating, comments })
 
         if (isSubmitted) {
-            setError('You have already submitted feedback for this booking.')
+            notifications.show({
+                title: 'Feedback Already Submitted',
+                message: 'You have already submitted feedback for this booking.',
+                color: 'yellow',
+            })
             return
         }
 
@@ -62,14 +65,14 @@ const Feedback = () => {
                         booking_id: bookingId,
                         service_rating: serviceRating,
                         system_rating: systemRating,
-                        comment: comments
+                        comment: comments,
+                        user_role: userData.role
                     }
                 ])
                 .select()
 
             if (error) throw error
 
-            setSuccess(true)
             setIsSubmitted(true)
             setServiceRating('')
             setSystemRating('')
@@ -83,7 +86,11 @@ const Feedback = () => {
             })
             navigate('/home')
         } catch (error) {
-            setError('Error submitting feedback: ' + error.message)
+            notifications.show({
+                title: 'Error Submitting Feedback',
+                message: error.message,
+                color: 'red',
+            })
         }
     }
 
@@ -117,8 +124,6 @@ const Feedback = () => {
                 </Button>
                 <Button onClick={() => navigate('/home')} size="md" radius="md">Cancel</Button>
             </Stack>
-            {error && <p style={{ color: 'red' }}>{error}</p>}
-            {success && <p style={{ color: 'green' }}>Feedback submitted successfully!</p>}
         </CommonLayout>
     )
 }
