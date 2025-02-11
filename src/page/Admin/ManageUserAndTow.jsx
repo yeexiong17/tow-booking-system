@@ -5,12 +5,14 @@ import { ActionIcon, Anchor, Avatar, Badge, Button, Card, Drawer, Flex, Group, I
 import CommonLayout from '../../components/CommonLayout'
 import { useDisclosure } from '@mantine/hooks'
 import { supabase } from '../../supabase'
+import { convertToMalaysiaTime } from "../../helpers/HelperFunction"
 
 const ManageUserAndTow = () => {
 
     const [opened, { open, close }] = useDisclosure(false)
     const [userData, setUserData] = useState([])
-    const [towData, setTowData] = useState([])
+    const [towDataProfiles, setTowDataProfiles] = useState([])
+    const [selectedUser, setSelectedUser] = useState(null);
 
     useEffect(() => {
         fetchUserData()
@@ -25,7 +27,6 @@ const ManageUserAndTow = () => {
                 .eq('role', 'user')
 
             if (error) throw new Error(error)
-            console.log(data)
             setUserData(data)
         } catch (error) {
             console.log(error)
@@ -34,19 +35,47 @@ const ManageUserAndTow = () => {
 
     const fetchTowData = async () => {
         try {
-            const { data, error } = await supabase
+            const { data: towDetails, error: towError } = await supabase
+                .from('tow_driver_details')
+                .select(`
+                    user_id,
+                    identification_card_photo_url,
+                    identification_number,
+                    full_name,
+                    license_photo_url,
+                    vehicle_photo_url,
+                    vehicle_model,
+                    vehicle_plate
+                `)
+                .neq('status', 'unverified');
+
+            if (towError) throw towError;
+            const { data: profiles, error: profileError } = await supabase
                 .from('profiles')
                 .select()
-                .eq('role', 'tow')
-                .neq('status', 'unverified')
+                .eq('role', 'tow');
 
-            if (error) throw new Error(error)
-            console.log(data)
-            setTowData(data)
+            if (profileError) throw profileError;
+            const mergedData = profiles.map(profile => {
+                const towDetail = towDetails.find(tow => tow.user_id === profile.id);
+                return {
+                    ...profile,
+                    ...towDetail
+                };
+            });
+
+            setTowDataProfiles(mergedData);
         } catch (error) {
-            console.log(error)
+            console.error("Fetch Tow Data Error:", error);
         }
-    }
+    };
+
+
+
+    const handleViewDetails = (user) => {
+        setSelectedUser(user);
+        open();
+    };
 
     const userRows = userData.map((item, index) => (
         <Table.Tr key={index}>
@@ -64,11 +93,11 @@ const ManageUserAndTow = () => {
                 </Anchor>
             </Table.Td>
             <Table.Td>
-                <Text fz="sm">{item?.phone || '-'}</Text>
+                <Text fz="sm">{item?.phone || ' - '}</Text>
             </Table.Td>
             <Table.Td>
                 <Group gap={0} justify="flex-end">
-                    <Button variant="default" onClick={open}>
+                    <Button variant="default" onClick={() => handleViewDetails(item)}>
                         View Details
                     </Button>
                 </Group>
@@ -76,29 +105,23 @@ const ManageUserAndTow = () => {
         </Table.Tr>
     ))
 
-    const towRows = towData.map((item, index) => (
+    const towRows = towDataProfiles.map((item, index) => (
         <Table.Tr key={index}>
             <Table.Td>
                 <Group gap="sm">
-                    <Avatar size={30} src={item.profile_picture} radius={30} />
-                    <Text fz="sm" fw={500}>
-                        {item.name}
-                    </Text>
+                    <Avatar size={30} src={item.profile_picture || "https://cdn-icons-png.flaticon.com/512/179/179573.png"} radius={30} />
+                    <Text fz="sm" fw={500}>{item.name}</Text>
                 </Group>
             </Table.Td>
             <Table.Td>
-                <Anchor component="button" size="sm">
-                    {item.email}
-                </Anchor>
+                <Anchor component="button" size="sm">{item.email || '-'}</Anchor>
             </Table.Td>
             <Table.Td>
                 <Text fz="sm">{item?.phone || '-'}</Text>
             </Table.Td>
             <Table.Td>
                 <Group gap={0} justify="flex-end">
-                    <Button variant="default" onClick={open}>
-                        View Details
-                    </Button>
+                    <Button variant="default" onClick={() => handleViewDetails(item)}>View Details</Button>
                 </Group>
             </Table.Td>
         </Table.Tr>
@@ -138,98 +161,104 @@ const ManageUserAndTow = () => {
                 </Table>
             </ScrollArea>
 
-            <Drawer position='right' offset={8} radius="md" opened={opened} onClose={close} title="Details"
-                styles={() => ({
-                    title: {
-                        fontWeight: 'bold'
-                    },
-                    body: {
-                        height: '90%',
-                        paddingBottom: 0,
-                        overflow: 'hidden'
-                    },
-                    content: {
-                        postition: 'relative'
-                    }
-                })}
-            >
-                <ScrollArea className='h-full'>
-                    <Stack className='h-full'>
-                        <Card shadow="xs" padding="sm" radius="md" withBorder>
-                            <p className='font-bold'>Personal Details</p>
-                            <Space h="xs" />
-                            <Flex className='items-center'>
-                                <Avatar
-                                    src={userData.face_photo_url}
-                                    radius="lg"
-                                    size="xl"
-                                />
-                                <Space w="md" />
-                                <div className='py-4'>
-                                    <Text><span className='font-bold'>Name: </span>Test 4</Text>
-                                    <Text><span className='font-bold'>Email: </span>test4@gmail.com</Text>
-                                    <Text><span className='font-bold'>Phone: </span>60123456789</Text>
-                                </div>
-                            </Flex>
-                        </Card>
-                        <Card shadow="xs" padding="sm" radius="md" withBorder>
-                            <p className='font-bold'>Identification Details</p>
-                            <Space h="xs" />
-                            <Stack className='items-center'>
-                                <Image
-                                    radius="md"
-                                    src="https://cdn-icons-png.flaticon.com/512/179/179573.png"
-                                    styles={() => ({
-                                        root: {
-                                            aspectRatio: '3/2',
-                                        }
-                                    })}
-                                />
-                                <div>
-                                    <Text><span className='font-bold'>Full Name: </span>John Doe</Text>
-                                    <Text className='font-bold'><span className='font-bold'>Identification Number: </span>0401011473384</Text>
-                                </div>
-                            </Stack>
-                        </Card>
-                        <Card shadow="xs" padding="sm" radius="md" withBorder>
-                            <p className='font-bold'>Driving License</p>
-                            <Space h="xs" />
-                            <Stack className='items-center'>
-                                <Image
-                                    radius="md"
-                                    src="https://cdn-icons-png.flaticon.com/512/179/179573.png"
-                                    styles={() => ({
-                                        root: {
-                                            aspectRatio: '3/2',
-                                        }
-                                    })}
-                                />
-                            </Stack>
-                        </Card>
-                        <Card shadow="xs" padding="sm" radius="md" withBorder>
-                            <p className='font-bold'>Vehicle Details</p>
-                            <Space h="xs" />
-                            <Stack className='items-center'>
-                                <Image
-                                    radius="md"
-                                    src="https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/images/bg-7.png"
-                                    styles={() => ({
-                                        root: {
-                                            aspectRatio: '3/2',
-                                        }
-                                    })}
-                                />
-                                <div>
-                                    <Text className='font-bold'><span className='font-bold'>Model: </span>Toyota Vios</Text>
-                                    <Text><span className='font-bold'>Plate Number: </span>ABC1234</Text>
-                                </div>
-                            </Stack>
-                        </Card>
-                    </Stack>
-                </ScrollArea>
+            {/* Drawer for displaying user/tow details */}
+            <Drawer position='right' offset={8} radius="md" opened={opened} onClose={close} title="Details">
+                {selectedUser && (
+                    <ScrollArea className='h-full'>
+                        <Stack className='h-full'>
+                            {selectedUser.role === 'user' && (
+                                <Card shadow="xs" padding="sm" radius="md" withBorder>
+                                    <p className='font-bold'>Personal Details</p>
+                                    <Image
+                                        src={selectedUser.profile_picture || 'https://static.vecteezy.com/system/resources/thumbnails/002/387/693/small_2x/user-profile-icon-free-vector.jpg'}
+                                        height={50}
+                                    />
+                                    <Space h="xs" />
+                                    <Flex className='items-center'>
+                                        <Space w="md" />
+                                        <div className='py-4'>
+                                            <Text><span className='font-bold'>Id: </span>{selectedUser.id}</Text>
+                                            <Text><span className='font-bold'>Name: </span>{selectedUser.name}</Text>
+                                            <Text><span className='font-bold'>Email: </span>{selectedUser.email}</Text>
+                                            <Text><span className='font-bold'>Phone: </span>{selectedUser.phone || '-'}</Text>
+                                            <Text><span className="font-bold">Date Time Joined: </span>{convertToMalaysiaTime(selectedUser.created_at)}</Text>
+                                        </div>
+                                    </Flex>
+                                </Card>
+                            )}
+                            {selectedUser.role === 'tow' && (
+                                <Card shadow="xs" padding="sm" radius="md" withBorder>
+                                    <p className='font-bold'>Personal Details</p>
+                                    <Space h="xs" />
+                                    <Text><span className='font-bold'>Id: </span>{selectedUser.id}</Text>
+                                    <Text><span className="font-bold">Date Time Joined: </span>{convertToMalaysiaTime(selectedUser.created_at)}</Text>
+                                    <Flex className='items-center'>
+                                        <Avatar
+                                            src={selectedUser.profile_picture || 'https://static.vecteezy.com/system/resources/thumbnails/002/387/693/small_2x/user-profile-icon-free-vector.jpg'}
+                                            radius="lg"
+                                            size="xl"
+                                        />
+                                        <Space w="md" />
+                                        <div className='py-4'>
+                                            <Text><span className='font-bold'>Name: </span>{selectedUser.name}</Text>
+                                            <Text><span className='font-bold'>Email: </span>{selectedUser.email}</Text>
+                                            <Text><span className='font-bold'>Phone: </span>{selectedUser.phone || '-'}</Text>
+                                        </div>
+                                    </Flex>
+                                </Card>
+                            )}
+                            {selectedUser.role === 'tow' && (
+                                <Card shadow="xs" padding="sm" radius="md" withBorder>
+                                    <p className='font-bold'>Identification Details</p>
+                                    <Space h="xs" />
+                                    <Stack className='items-center'>
+                                        <Image 
+                                            radius="md" 
+                                            src={selectedUser.identification_card_photo_url || "https://cdn-icons-png.flaticon.com/512/179/179573.png"} 
+                                        />
+                                        <div>
+                                            <Text><span className='font-bold'>Full Name: </span>{selectedUser.full_name}</Text>
+                                            <Text><span className='font-bold'>Identification Number: </span>{selectedUser.identification_number || '-'}</Text>
+                                        </div>
+                                    </Stack>
+                                </Card>
+                            )}
+                            {selectedUser.role === 'tow' && (
+                                <Card shadow="xs" padding="sm" radius="md" withBorder>
+                                    <p className='font-bold'>Driving License</p>
+                                    <Space h="xs" />
+                                    <Stack className='items-center'>
+                                        <Image 
+                                            radius="md" 
+                                            src={selectedUser.license_photo_url || "https://cdn-icons-png.flaticon.com/512/179/179573.png"} 
+                                            styles={() => ({
+                                                root: {
+                                                    aspectRatio: '3/2',
+                                                }
+                                            })}
+                                        />
+                                    </Stack>
+                                </Card>
+                            )}
+                            {selectedUser.role === 'tow' && (
+                                <Card shadow="xs" padding="sm" radius="md" withBorder>
+                                    <p className='font-bold'>Vehicle Details</p>
+                                    <Space h="xs" />
+                                    <Stack className='items-center'>
+                                        <Image radius="md" src={selectedUser.vehicle_photo_url || "https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/images/bg-7.png"} />
+                                        <div>
+                                            <Text><span className='font-bold'>Model: </span>{selectedUser.vehicle_model || '-'}</Text>
+                                            <Text><span className='font-bold'>Plate Number: </span>{selectedUser.vehicle_plate || '-'}</Text>
+                                        </div>
+                                    </Stack>
+                                </Card>
+                            )}
+                        </Stack>
+                    </ScrollArea>
+                )}
             </Drawer>
         </CommonLayout>
-    )
-}
+    );
+};
 
 export default ManageUserAndTow
