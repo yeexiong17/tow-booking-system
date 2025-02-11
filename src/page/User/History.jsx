@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-import { Badge, Card, Drawer, Flex, Group, Image, ScrollArea, Space, Stack, Text } from '@mantine/core'
+import { Badge, Card, Drawer, Flex, Group, Image, ScrollArea, Space, Stack, Text, Button } from '@mantine/core'
 import CommonLayout from '../../components/CommonLayout'
 import { Link, useNavigate } from 'react-router-dom'
 import { IconArrowNarrowRight, IconMapPinFilled } from '@tabler/icons-react'
@@ -55,10 +55,7 @@ const History = () => {
     }
 
     const handleDrawerOpen = (index) => {
-
         const data = bookingData[index]
-
-        console.log(data)
         setSelectedData(data)
         open()
     }
@@ -115,7 +112,7 @@ const History = () => {
                             <Flex>
                                 <Space w="xl" />
                                 <Text c='dimmed' size='sm'>
-                                    Persiaran Multimedia, 63100 Cyberjaya, Selangor
+                                    {selectedData.from_location}
                                 </Text>
                             </Flex>
                         </Stack>
@@ -129,7 +126,7 @@ const History = () => {
                             <Flex>
                                 <Space w="xl" />
                                 <Text c='dimmed' size='sm'>
-                                    Jalan Ayer Keroh Lama, 75450 Bukit Beruang, Melaka
+                                    {selectedData.to_location}
                                 </Text>
                             </Flex>
                         </Stack>
@@ -138,9 +135,16 @@ const History = () => {
                     </Stack>
                 </Card>
 
-                {/* <Button size='md' onClick={() => navigate('/feedback')} color="blue" fullWidth mt="md" radius="md">
-                    Rate and Review
-                </Button> */}
+                <Space h="lg" />
+                {selectedData.status === 'Completed' && (
+                    <Link
+                        to={`/feedback?userId=${userData.id}&bookingId=${selectedData.id}`}
+                    >
+                        <Button size='md' color="blue" fullWidth mt="md" radius="md">
+                            Leave Feedback
+                        </Button>
+                    </Link>
+                )}
             </Drawer>
             <Stack>
                 <Text className="font-bold text-2xl text-neutral-800 mb-5">History</Text>
@@ -162,7 +166,7 @@ const History = () => {
                                         }
                                         <Flex>
                                             <Text size='sm' lineClamp={2}>
-                                                Persiaran Multimedia, 63100 Cyberjaya, Selangor to Jalan Ayer Keroh Lama, 75450 Bukit Beruang, Melaka
+                                                {booking.from_location} to {booking.to_location}
                                             </Text>
                                             <Space w="md" />
                                             <Text className='text-nowrap'>RM {booking.price || 'N/A'}</Text>
