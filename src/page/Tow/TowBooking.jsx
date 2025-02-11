@@ -53,7 +53,7 @@ const TowBooking = () => {
                 .order('created_at', { ascending: false })
 
             if (error) throw new Error(error);
-            const statusOrder = { "Pending": 1, "In progress": 2, "Completed": 3, "Canceled": 4 };
+            const statusOrder = { "Pending": 1, "In progress": 2, "Unpaid": 3, "Completed": 4, "Canceled": 5 };
             const sortedData = data.sort((a, b) => statusOrder[a.status] - statusOrder[b.status] || new Date(b.created_at) - new Date(a.created_at));
             setBookings(sortedData)
         } catch (error) {
@@ -66,6 +66,7 @@ const TowBooking = () => {
         'In progress': <Badge size="sm" color="yellow">In progress</Badge>,
         'Completed': <Badge size="sm" color="green">Completed</Badge>,
         'Canceled': <Badge size="sm" color="red">Canceled</Badge>,
+        "Unpaid": <Badge size='sm' color="orange">Unpaid</Badge>,
     }
 
     const handleOpenDrawer = (booking) => {

@@ -8,20 +8,23 @@ import Map from '../../components/Map'
 import { supabase } from '../../supabase'
 import { useAuth } from '../../Context'
 import { convertToMalaysiaTime } from '../../helpers/HelperFunction'
+import { useNavigate } from 'react-router-dom'
 
-const History = () => {
+const History = ({ autoOpenInProgress = false }) => {
 
     const [opened, { open, close }] = useDisclosure(false)
     const [bookingData, setBookingData] = useState([])
     const { userData, liveLocation } = useAuth()
     const [selectedData, setSelectedData] = useState([])
     const [towLiveLocation, setTowLiveLocation] = useState({ latitude: 0, longitude: 0 })
+    const navigate = useNavigate()
 
     const allBadge = {
         "Pending": <Badge size='sm' color="blue">Pending</Badge>,
         "In progress": <Badge size='sm' color="yellow">In progress</Badge>,
         "Completed": <Badge size='sm' color="green">Completed</Badge>,
         "Canceled": <Badge size='sm' color="red">Canceled</Badge>,
+        "Unpaid": <Badge size='sm' color="orange">Unpaid</Badge>,
     }
 
     useEffect(() => {
@@ -62,7 +65,7 @@ const History = () => {
 
             if (error) throw new Error(error)
             const sortedData = data.sort((a, b) => {
-                const statusOrder = { "Pending": 1, "In progress": 2, "Completed": 3, "Canceled": 4 }
+                const statusOrder = { "Pending": 1, "In progress": 2, "Unpaid": 3, "Completed": 4, "Canceled": 5 }
 
                 if (statusOrder[a.status] !== statusOrder[b.status]) {
                     return statusOrder[a.status] - statusOrder[b.status]
@@ -71,6 +74,13 @@ const History = () => {
             })
 
             setBookingData(sortedData)
+            if (autoOpenInProgress) {
+                const inProgressBooking = sortedData.find(b => b.status === "In progress")
+                if (inProgressBooking) {
+                    setSelectedData(inProgressBooking)
+                    open()
+                }
+            }
         } catch (error) {
             console.log(error)
         }
@@ -84,8 +94,46 @@ const History = () => {
     }
 
     const handleDrawerClose = () => {
-        setSelectedData([])
-        close()
+        if (autoOpenInProgress)
+        {
+            navigate('/home')
+        }else{
+            setSelectedData([])
+            close()
+        }
+    }
+    const handleCancelBooking = async () => {
+        try {
+            if (!selectedData.id || selectedData.status !== 'In progress') return
+
+            // Update the booking status to "Completed"
+            const { error: bookingError } = await supabase
+                .from('bookings')
+                .update({ status: 'Canceled', completed_at: new Date().toISOString() })
+                .eq('id', selectedData.id)
+
+            if (bookingError) throw bookingError
+
+            // Update the driver's status in the profiles table
+            const { error: profileError } = await supabase
+                .from('profiles')
+                .update({ status: 'active' })
+                .eq('id', selectedData.tow_id)
+
+            if (profileError) throw profileError
+
+            // Update the state to reflect the changes
+            setBookingData((prevBookings) =>
+                prevBookings.map((b) =>
+                    b.id === selectedData.id ? { ...b, status: 'Canceled', completed_at: null } : b
+                )
+            )
+
+            // Close the drawer
+            close()
+        } catch (error) {
+            console.error("Error updating booking and profile:", error)
+        }
     }
 
     return (
@@ -172,6 +220,16 @@ const History = () => {
                             Leave Feedback
                         </Button>
                     </Link>
+                )}
+                {selectedData.status === 'In progress' && (
+                    <Button
+                        size="md"
+                        color="blue"
+                        fullWidth
+                        onClick={() => handleCancelBooking()}
+                    >
+                        Cancel Service
+                    </Button>
                 )}
             </Drawer>
             <Stack>

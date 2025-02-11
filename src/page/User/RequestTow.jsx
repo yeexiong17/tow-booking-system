@@ -80,7 +80,7 @@ const RequestTow = () => {
                 .from('bookings')
                 .select('id, status')
                 .eq('user_id', userData.id)
-                .in('status', ['Pending', 'In progress'])
+                .in('status', ['Pending', 'In progress','Unpaid'])
                 .maybeSingle();
             if (!data) {
                 return;
@@ -94,6 +94,8 @@ const RequestTow = () => {
                     setActive(2)
                 } else if (data.status === 'In progress') {
                     setActive(3)
+                } else if (data.status === 'Unpaid') {
+                    setActive(4)
                 }
             }
         }
@@ -113,7 +115,14 @@ const RequestTow = () => {
 
             if (!error && data.status !== bookingStatus) {
                 setBookingStatus(data.status);
-                setActive(data.status === 'In progress' ? 3 : 4);
+                if (data.status === 'Unpaid')
+                    setActive(4);
+                else if (data.status === 'Canceled')
+                    setActive(0);
+                else if (data.status === 'Pending')
+                    setActive(2)
+                else if (data.status === 'In progress')
+                    setActive(3);
             }
         };
 
@@ -189,15 +198,53 @@ const RequestTow = () => {
             })
             return
         }
-        notifications.show({
-            title: 'Thank You!',
-            message: 'Transaction Completed',
-            className: 'w-5/6 ml-auto',
-            position: 'top-right',
-            color: 'green',
-        })
-        navigate('/home')
+        try {
+            toggle()
 
+            if (bookingId) {
+                const { error } = await supabase
+                    .from('bookings')
+                    .update({ status: 'Completed' })
+                    .eq('id', bookingId)
+
+                if (error) throw error
+            }
+            const { data, error } = await supabase
+                        .from('bookings')
+                        .select('tow_id')
+                        .eq('id', bookingId)
+                        .single()
+            console.log(data)
+            if (data) {
+                const { error } = await supabase
+                    .from('profiles')
+                    .update({ status: 'active' })
+                    .eq('id', data.tow_id)
+                if (error) throw error
+            }
+
+            if (error) throw error
+
+            notifications.show({
+                title: 'Thank You!',
+                message: 'Transaction Completed',
+                className: 'w-5/6 ml-auto',
+                position: 'top-right',
+                color: 'green',
+            })
+
+            navigate('/home')
+        } catch (error) {
+            notifications.show({
+                title: 'Payment Error',
+                message: error.message,
+                className: 'w-5/6 ml-auto',
+                position: 'top-right',
+                color: 'red',
+            })
+        } finally {
+            toggle()
+        }
     }
 
     const insertBooking = async () => {
@@ -339,7 +386,7 @@ const RequestTow = () => {
                 </Stepper>
                 <Group justify="center" mt="xl">
                     {
-                        active > 0 && active !== 2 && active !== 3 && <Button variant="default" onClick={() => handleStepChange(active - 1)}>Back</Button>
+                        active > 0 && active !== 2 && active !== 3 && active !== 4 && <Button variant="default" onClick={() => handleStepChange(active - 1)}>Back</Button>
                     }
 
                     {
