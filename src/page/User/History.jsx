@@ -52,30 +52,6 @@ const History = () => {
         }
     }
 
-    const testLocationUpdate = async () => {
-        try {
-            // Generate random slight variations in location
-            const testLocation = {
-                latitude: 2.9213 + (Math.random() - 0.5) * 0.01,  // Random variation around KL area
-                longitude: 101.6559 + (Math.random() - 0.5) * 0.01
-            };
-
-            const { error } = await supabase
-                .from('locations')
-                .upsert({
-                    user_id: userData.id,
-                    latitude: testLocation.latitude,
-                    longitude: testLocation.longitude,
-                    updated_at: new Date().toISOString()
-                }, { onConflict: 'user_id' });
-
-            if (error) throw error;
-            console.log('Test location updated:', testLocation);
-        } catch (error) {
-            console.error('Error updating test location:', error);
-        }
-    };
-
     const fetchBookingData = async () => {
         try {
             const { data, error } = await supabase
@@ -242,7 +218,6 @@ const History = () => {
 
                 </ScrollArea>
             </Stack>
-            <Button onClick={() => testLocationUpdate()}>Test Location Update</Button>
         </CommonLayout>
     )
 }
