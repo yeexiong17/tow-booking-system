@@ -1,37 +1,78 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import CommonLayout from '../../components/CommonLayout'
 import { DatePickerInput } from '@mantine/dates'
-import { Button, Flex, Space } from '@mantine/core'
+import { Button, Flex, Space, Stack, Text } from '@mantine/core'
 import { ScrollArea, Table } from '@mantine/core'
 import classes from '../../styles/ReportTable.module.css'
-
-
-const data = [
-    {
-        id: 1,
-        date: '22/03/2025',
-    },
-    {
-        id: 2,
-        date: '10/01/2025',
-    },
-    {
-        id: 3,
-        date: '17/01/2025',
-    }
-]
+import { supabase } from '../../supabase'
+import jsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
 
 const Report = () => {
+    const [startDate, setStartDate] = useState(null)
+    const [endDate, setEndDate] = useState(null)
+    const [bookings, setBookings] = useState([])
+    const [error, setError] = useState(null)
+    const [success, setSuccess] = useState(false)
 
-    const [value, setValue] = useState(null)
-    const [scrolled, setScrolled] = useState(false)
+    const handleGenerateReport = async () => {
+        if (!startDate || !endDate) {
+            setError('Please select both start and end dates.')
+            return
+        }
 
-    const rows = data.map((row) => (
+        try {
+            // Convert dates to ISO format
+            const start = new Date(startDate).toISOString()
+            const end = new Date(endDate).toISOString()
+
+            const { data: bookingsData, error: fetchError } = await supabase
+                .from('bookings')
+                .select('user_id, id')
+                .gte('created_at', start)
+                .lte('created_at', end)
+
+            if (fetchError) throw fetchError
+
+            // Check if bookingsData is empty
+            if (!bookingsData || bookingsData.length === 0) {
+                setError('No bookings found for the selected date range.')
+                return
+            }
+
+            // Generate PDF
+            const doc = new jsPDF()
+            doc.setFontSize(18)
+            doc.text('Booking Report', 14, 20)
+
+            // Add total bookings count
+            const totalBookings = bookingsData.length
+            doc.setFontSize(12)
+            doc.text(`Total Bookings: ${totalBookings}`, 14, 30)
+
+            autoTable(doc, {
+                startY: 40,
+                head: [['User ID', 'Booking ID']],
+                body: bookingsData.map(booking => [
+                    booking.user_id,
+                    booking.id,
+                ]),
+            })
+
+            doc.save('booking_report.pdf')
+            setSuccess(true)
+            setError(null)
+        } catch (error) {
+            setError('Error generating report: ' + error.message)
+        }
+    }
+
+    const rows = bookings.map((row) => (
         <Table.Tr key={row.name}>
             <Table.Td>{row.id}</Table.Td>
             <Table.Td>{row.date}</Table.Td>
             <Table.Td>
-                <Button>Generate Report</Button>
+                <Button onClick={handleGenerateReport}>Generate Report</Button>
             </Table.Td>
         </Table.Tr>
     ))
@@ -43,28 +84,29 @@ const Report = () => {
             <Space h={20} />
             <div className='w-2/6'>
                 <DatePickerInput
-                    label="Pick date"
-                    placeholder="Pick date"
-                    value={value}
-                    onChange={setValue}
+                    label="Start Date"
+                    value={startDate}
+                    onChange={setStartDate}
+                    placeholder="Select start date"
                 />
             </div>
-
+            <div className='w-2/6'>
+                <DatePickerInput
+                    label="End Date"
+                    value={endDate}
+                    onChange={setEndDate}
+                    placeholder="Select end date"
+                />
+            </div>
+            
             <Space h={20} />
-            <ScrollArea h={300} onScrollPositionChange={({ y }) => setScrolled(y !== 0)}>
-                <Table miw={700}>
-                    <Table.Thead>
-                        <Table.Tr>
-                            <Table.Th>No.</Table.Th>
-                            <Table.Th>Date</Table.Th>
-                            <Table.Th></Table.Th>
-                        </Table.Tr>
-                    </Table.Thead>
-                    <Table.Tbody>{rows}</Table.Tbody>
-                </Table>
-            </ScrollArea>
-        </CommonLayout>
+            <Button onClick={handleGenerateReport} disabled={!startDate || !endDate}>
+                Generate Report
+            </Button>
 
+            {error && <Text color="red">{error}</Text>}
+            {success && <Text color="green">Report generated successfully!</Text>}
+        </CommonLayout>
     )
 }
 
