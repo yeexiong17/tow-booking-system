@@ -125,30 +125,25 @@ const RequestTow = () => {
     }, [bookingId, bookingStatus]);
 
     const handleStepChange = (nextStep) => {
+        if (nextStep > 4 || nextStep < 0) return;
 
-        if (nextStep > 4 || nextStep < 0) return
-
-        const isVehicleDetailsIncomplete = Object.entries(vehicleDetails)
-            .some(([key, value]) => (key !== 'vehicleImage' && value.trim() === '') || (key === 'vehicleImage' && value === null))
-
-        const isLocationDetailsIncomplete = Object.values(locationDetails).some(value => value === '' || value === null)
-
-        if ((isVehicleDetailsIncomplete && nextStep === 1) || (isLocationDetailsIncomplete && nextStep === 2)) {
-            notifications.show({
-                title: 'Step Error',
-                message: 'Please fill in all the fields',
-                className: 'w-5/6 ml-auto',
-                position: 'top-right',
-                color: 'red'
-            })
-            return
-        }
-        if (!isLocationDetailsIncomplete && nextStep === 2) {
-            insertBooking()
+        // Validate fromLocation and toLocation when moving to the location step
+        if (nextStep === 2) {
+            if (!fromLocation.trim() || !toLocation.trim()) {
+                notifications.show({
+                    title: 'Step Error',
+                    message: 'Please fill in all the fields',
+                    className: 'w-5/6 ml-auto',
+                    position: 'top-right',
+                    color: 'red',
+                });
+                return;
+            }
+            insertBooking(); // Call insertBooking if validation passes
         }
 
-        setActive(nextStep)
-    }
+        setActive(nextStep);
+    };
 
     const generateUniqueFilePath = () => {
         const shortUserId = userData.id.split("-")[0]
