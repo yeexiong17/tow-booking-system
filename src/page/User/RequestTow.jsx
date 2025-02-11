@@ -43,7 +43,6 @@ const RequestTow = () => {
     // New state for user input locations
     const [fromLocation, setFromLocation] = useState('')
     const [toLocation, setToLocation] = useState('')
-
     const [paymentMethod, setPaymentMethod] = useState('')
     const [bookingId, setBookingId] = useState(null)
     const [bookingStatus, setBookingStatus] = useState('')
@@ -125,14 +124,15 @@ const RequestTow = () => {
     }, [bookingId, bookingStatus]);
 
     const handleStepChange = (nextStep) => {
-
         if (nextStep > 4 || nextStep < 0) return
 
         const isVehicleDetailsIncomplete = Object.entries(vehicleDetails)
             .some(([key, value]) => (key !== 'vehicleImage' && value.trim() === '') || (key === 'vehicleImage' && value === null))
 
-        const isLocationDetailsIncomplete = Object.values(locationDetails).some(value => value === '' || value === null)
-
+            const isLocationDetailsIncomplete = (Object.values(locationDetails).some(value => value === '' || value === null) ||
+            (!fromLocation.trim()) ||
+            (!toLocation.trim()))
+            
         if ((isVehicleDetailsIncomplete && nextStep === 1) || (isLocationDetailsIncomplete && nextStep === 2)) {
             notifications.show({
                 title: 'Step Error',
