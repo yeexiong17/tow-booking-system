@@ -212,7 +212,7 @@ const History = ({ autoOpenInProgress = false }) => {
                 <Space h="lg" />
                 <Card padding="md" radius="md" withBorder>
                     <Stack gap='xs' className='mt-4'>
-                        <Stack>
+                        <Stack gap='xs'>
                             <Flex>
                                 <IconMapPinFilled className='text-blue-500 mr-2' stroke={2} />
                                 <Text className='flex items-center' fw={500}>
@@ -226,7 +226,7 @@ const History = ({ autoOpenInProgress = false }) => {
                                 </Text>
                             </Flex>
                         </Stack>
-                        <Stack>
+                        <Stack gap='xs'>
                             <Flex>
                                 <IconMapPinFilled className='text-red-500 mr-2' stroke={2} />
                                 <Text className='flex items-center' fw={500}>
@@ -285,11 +285,11 @@ const History = ({ autoOpenInProgress = false }) => {
                                             allBadge[booking.status]
                                         }
                                         <Flex>
-                                            <Text size='sm' lineClamp={2}>
+                                            <Text size='md' lineClamp={2} className='grow'>
                                                 {booking.from_location} to {booking.to_location}
                                             </Text>
                                             <Space w="md" />
-                                            <Text className='text-nowrap'>RM {booking.price || 'N/A'}</Text>
+                                            <Text className='text-nowrap'>RM {booking.amount || 'N/A'}</Text>
                                         </Flex>
                                         <Flex>
                                             <Text size='sm' c='dimmed'>{convertToMalaysiaTime(booking.created_at)}</Text>
