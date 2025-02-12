@@ -23,7 +23,7 @@ const Home = () => {
             <PhoneModal hasPhone={hasPhone} />
 
             <Stack>
-                <p className="font-bold text-2xl text-neutral-800 mb-5">Welcome, {`${userData?.name}`}</p>
+                <p className="font-bold text-2xl text-neutral-800 mb-5">Welcome, {`${userData.user_metadata.name}`}</p>
                 <Image
                     radius="md"
                     src={Booking2}
