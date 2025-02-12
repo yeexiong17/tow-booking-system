@@ -20,10 +20,10 @@ const PhoneModal = ({ hasPhone }) => {
     const [transOpen, setTransOpen] = useState(false)
 
     useEffect(() => {
-        if (hasPhone) {
+        if (!hasPhone) {
             open()
         }
-    }, [])
+    }, [hasPhone])
 
     const handleGetOTP = async () => {
         let trimPhone = phone.trim()

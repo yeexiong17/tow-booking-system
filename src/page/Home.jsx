@@ -6,17 +6,28 @@ import CommonLayout from '../components/CommonLayout'
 import { useAuth } from '../Context'
 import PhoneModal from '../components/PhoneModal'
 import Booking2 from '../images/booking-2.jpg'
+import { supabase } from '../supabase'
 
 const Home = () => {
     const { signOut, userData } = useAuth()
-    const [hasPhone, setHasPhone] = useState(false)
+    const [hasPhone, setHasPhone] = useState(true)
     const navigate = useNavigate()
 
     useEffect(() => {
-        if (userData?.phone) {
-            setHasPhone(true)
+        getUserDetails()
+    }, [])
+
+    const getUserDetails = async () => {
+        const { data, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', userData.id)
+
+        console.log(data[0])
+        if (data[0].phone == '') {
+            setHasPhone(false)
         }
-    }, [userData])
+    }
 
     return (
         <CommonLayout>
