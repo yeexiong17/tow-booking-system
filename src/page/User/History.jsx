@@ -205,7 +205,7 @@ const History = ({ autoOpenInProgress = false }) => {
                             </Flex>
                             <Divider my="md" />
 
-                            <Image src={selectedData.vehicle_image_url} fit="contain" />
+                            <Image src={towDriverData.vehicle_photo_url} fit="contain" />
                         </Card>
                     </>
                 )}
