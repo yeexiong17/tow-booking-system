@@ -42,8 +42,8 @@ const History = ({ autoOpenInProgress = false }) => {
 
     const getTowLocation = async () => {
         const filteredData = bookingData.filter(item => item.status === "In progress")
-        console.log('getting tow location...')
-        if (filteredData.length > 0) {
+        if (filteredData.length !== 0) {
+            console.log('getting tow location...')
             const { data, error } = await supabase
                 .from('locations')
                 .select()
@@ -241,7 +241,11 @@ const History = ({ autoOpenInProgress = false }) => {
                             </Flex>
                         </Stack>
 
-                        <Map bookingLocation={[selectedData.from_coordinates, towLiveLocation]} center={liveLocation} />
+                        {
+                            selectedData.status == 'In progress' && (
+                                <Map bookingLocation={[selectedData.from_coordinates, towLiveLocation]} center={liveLocation} />
+                            )
+                        }
                     </Stack>
                 </Card>
 

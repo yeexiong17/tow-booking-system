@@ -80,7 +80,7 @@ const RequestTow = () => {
                 .from('bookings')
                 .select('id, status')
                 .eq('user_id', userData.id)
-                .in('status', ['Pending', 'In progress','Unpaid'])
+                .in('status', ['Pending', 'In progress', 'Unpaid'])
                 .maybeSingle();
             if (!data) {
                 return;
@@ -91,11 +91,11 @@ const RequestTow = () => {
                 setBookingId(data.id)
                 setBookingStatus(data.status)
                 if (data.status === 'Pending') {
-                    setActive(2)
-                } else if (data.status === 'In progress') {
                     setActive(3)
-                } else if (data.status === 'Unpaid') {
+                } else if (data.status === 'In progress') {
                     setActive(4)
+                } else if (data.status === 'Unpaid') {
+                    setActive(5)
                 }
             }
         }
@@ -116,13 +116,13 @@ const RequestTow = () => {
             if (!error && data.status !== bookingStatus) {
                 setBookingStatus(data.status);
                 if (data.status === 'Unpaid')
-                    setActive(4);
+                    setActive(5);
                 else if (data.status === 'Canceled')
                     setActive(0);
                 else if (data.status === 'Pending')
-                    setActive(2)
+                    setActive(3)
                 else if (data.status === 'In progress')
-                    setActive(3);
+                    setActive(4);
             }
         };
 
@@ -138,11 +138,11 @@ const RequestTow = () => {
         const isVehicleDetailsIncomplete = Object.entries(vehicleDetails)
             .some(([key, value]) => (key !== 'vehicleImage' && value.trim() === '') || (key === 'vehicleImage' && value === null))
 
-            const isLocationDetailsIncomplete = (Object.values(locationDetails).some(value => value === '' || value === null) ||
+        const isLocationDetailsIncomplete = (Object.values(locationDetails).some(value => value === '' || value === null) ||
             (!fromLocation.trim()) ||
             (!toLocation.trim()))
-            
-        if ((isVehicleDetailsIncomplete && nextStep === 1) || (isLocationDetailsIncomplete && nextStep === 2)) {
+
+        if ((isVehicleDetailsIncomplete && nextStep === 1) || (isLocationDetailsIncomplete && nextStep === 2) || (paymentMethod.length == 0 && nextStep === 3)) {
             notifications.show({
                 title: 'Step Error',
                 message: 'Please fill in all the fields',
@@ -152,7 +152,7 @@ const RequestTow = () => {
             })
             return
         }
-        if (!isLocationDetailsIncomplete && nextStep === 2) {
+        if (!isLocationDetailsIncomplete && nextStep === 3) {
             insertBooking()
         }
 
@@ -210,10 +210,10 @@ const RequestTow = () => {
                 if (error) throw error
             }
             const { data, error } = await supabase
-                        .from('bookings')
-                        .select('tow_id')
-                        .eq('id', bookingId)
-                        .single()
+                .from('bookings')
+                .select('tow_id')
+                .eq('id', bookingId)
+                .single()
             console.log(data)
             if (data) {
                 const { error } = await supabase
@@ -265,7 +265,8 @@ const RequestTow = () => {
                     vehicle_color: vehicleDetails.color,
                     vehicle_plate: vehicleDetails.numberPlate,
                     from_location: fromLocation,
-                    to_location: toLocation
+                    to_location: toLocation,
+                    amount: 100
                 })
                 .select('id')
                 .single();
@@ -374,15 +375,15 @@ const RequestTow = () => {
                             placeholder="Enter your destination"
                         />
                     </Stepper.Step>
+                    <Stepper.Step size={20} label="Payment">
+                        <Payment setPaymentMethod={setPaymentMethod} />
+                    </Stepper.Step>
                     <Stepper.Step icon={<IconLoader size={20} />} label="Pending">
                         <Pending />
                     </Stepper.Step>
                     <Stepper.Step icon={<IconLoader size={20} />} label="In Progress">
                         <InProgress />
                     </Stepper.Step>
-                    <Stepper.Completed>
-                        <Payment setPaymentMethod={setPaymentMethod} />
-                    </Stepper.Completed>
                 </Stepper>
                 <Group justify="center" mt="xl">
                     {
@@ -395,7 +396,10 @@ const RequestTow = () => {
                         ) : active === 1 ? (
                             <Button onClick={() => handleStepChange(2)}>Next</Button>
                         ) : active === 2 ? (
-                            <Button onClick={() => handleCancelRequest()}>Cancel Request</Button>
+                            <>
+                                <Button onClick={() => handleStepChange(active + 1)}>Proceed to payment</Button>
+                                <Button onClick={() => handleCancelRequest()}>Cancel Request</Button>
+                            </>
                         ) : active === 4 ? (
                             <Button onClick={() => handlePayment()}>Proceed to payment</Button>
                         ) : null

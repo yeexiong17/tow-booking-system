@@ -3,7 +3,7 @@ import { Badge, Button, Divider, Group, Image, Card, Drawer, Flex, ScrollArea, S
 import CommonLayout from '../../components/CommonLayout'
 import { Link } from 'react-router-dom'
 import { useDisclosure } from '@mantine/hooks'
-import { IconArrowNarrowRight } from '@tabler/icons-react'
+import { IconArrowNarrowRight, IconMapPinFilled } from '@tabler/icons-react'
 import Map from '../../components/Map'
 import { supabase } from '../../supabase'
 import { useAuth } from '../../Context'
@@ -138,9 +138,47 @@ const TowBooking = () => {
                     <Text size="sm" fw={500}>Plate: {selectedData.vehicle_plate}</Text>
                 </Card>
                 <Space h="lg" />
+
                 <Card padding="md" radius="md" withBorder>
-                    <Map bookingLocation={[userLiveLocation, selectedData.to_coordinates]} center={liveLocation} />
+                    <Stack gap='xs' className='mt-4'>
+                        <Stack gap='xs'>
+                            <Flex>
+                                <IconMapPinFilled className='text-blue-500 mr-2' stroke={2} />
+                                <Text className='flex items-center' fw={500}>
+                                    From
+                                </Text>
+                            </Flex>
+                            <Flex>
+                                <Space w="xl" />
+                                <Text c='dimmed' size='sm'>
+                                    {selectedData.from_location}
+                                </Text>
+                            </Flex>
+                        </Stack>
+                        <Stack gap='xs'>
+                            <Flex>
+                                <IconMapPinFilled className='text-red-500 mr-2' stroke={2} />
+                                <Text className='flex items-center' fw={500}>
+                                    To
+                                </Text>
+                            </Flex>
+                            <Flex>
+                                <Space w="xl" />
+                                <Text c='dimmed' size='sm'>
+                                    {selectedData.to_location}
+                                </Text>
+                            </Flex>
+                        </Stack>
+                        {
+                            selectedData.status === 'In progress' && (
+                                <Card padding="md" radius="md" withBorder>
+                                    <Map bookingLocation={[userLiveLocation, selectedData.to_coordinates]} center={liveLocation} />
+                                </Card>
+                            )
+                        }
+                    </Stack>
                 </Card>
+
                 {selectedData.status === 'In progress' && (
                     <Button
                         size="md"
@@ -160,8 +198,11 @@ const TowBooking = () => {
                             <Stack>
                                 {allBadge[booking.status]}
                                 <Flex>
-                                    <Text size='sm' lineClamp={2}>{booking.from_location} to {booking.to_location}</Text>
-                                    <Text className='ml-auto'>RM {booking.price || 'N/A'}</Text>
+                                    <Text size='md' lineClamp={2} className='grow'>
+                                        {booking.from_location} to {booking.to_location}
+                                    </Text>
+                                    <Space w="md" />
+                                    <Text className='text-nowrap'>RM {booking.amount || 'N/A'}</Text>
                                 </Flex>
                                 <Flex>
                                     <Text size='sm' c='dimmed'>{convertToMalaysiaTime(booking.created_at)}</Text>
@@ -179,8 +220,11 @@ const TowBooking = () => {
                             <Stack>
                                 {allBadge[booking.status]}
                                 <Flex>
-                                    <Text size='sm' lineClamp={2}>{booking.from_location} to {booking.to_location}</Text>
-                                    <Text className='ml-auto'>RM {booking.price || 'N/A'}</Text>
+                                    <Text size='md' lineClamp={2} className='grow'>
+                                        {booking.from_location} to {booking.to_location}
+                                    </Text>
+                                    <Space w="md" />
+                                    <Text className='text-nowrap'>RM {booking.amount || 'N/A'}</Text>
                                 </Flex>
                                 <Flex>
                                     <Text size='sm' c='dimmed'>{convertToMalaysiaTime(booking.created_at)}</Text>

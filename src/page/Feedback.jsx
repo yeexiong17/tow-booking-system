@@ -66,7 +66,7 @@ const Feedback = () => {
                         service_rating: serviceRating,
                         system_rating: systemRating,
                         comment: comments,
-                        user_role: userData.role
+                        user_role: userData.user_metadata.role
                     }
                 ])
                 .select()
@@ -113,10 +113,10 @@ const Feedback = () => {
                 onChange={(event) => setComments(event.currentTarget.value)}
             />
             <Stack>
-                <Button 
-                    onClick={handleSubmit} 
-                    size="md" 
-                    radius="md" 
+                <Button
+                    onClick={handleSubmit}
+                    size="md"
+                    radius="md"
                     disabled={isSubmitted}
                     style={{ backgroundColor: isSubmitted ? 'gray' : undefined }}
                 >
