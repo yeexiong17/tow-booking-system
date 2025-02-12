@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Badge, Card, Drawer, Flex, Group, Image, ScrollArea, Space, Stack, Text, Button } from '@mantine/core'
+import { Badge, Card, Drawer, Flex, Group, Image, ScrollArea, Space, Stack, Text, Button, Avatar, Divider } from '@mantine/core'
 import CommonLayout from '../../components/CommonLayout'
 import { Link } from 'react-router-dom'
 import { IconArrowNarrowRight, IconMapPinFilled } from '@tabler/icons-react'
@@ -16,6 +16,7 @@ const History = ({ autoOpenInProgress = false }) => {
     const [bookingData, setBookingData] = useState([])
     const { userData, liveLocation } = useAuth()
     const [selectedData, setSelectedData] = useState([])
+    const [towDriverData, setTowDriverData] = useState([])
     const [towLiveLocation, setTowLiveLocation] = useState({ latitude: 0, longitude: 0 })
     const navigate = useNavigate()
 
@@ -77,6 +78,7 @@ const History = ({ autoOpenInProgress = false }) => {
             if (autoOpenInProgress) {
                 const inProgressBooking = sortedData.find(b => b.status === "In progress")
                 if (inProgressBooking) {
+                    getTowDriverData(inProgressBooking.tow_id)
                     setSelectedData(inProgressBooking)
                     open()
                 }
@@ -90,14 +92,23 @@ const History = ({ autoOpenInProgress = false }) => {
         const data = bookingData[index]
 
         setSelectedData(data)
+        getTowDriverData(data.tow_id)
         open()
     }
 
+    const getTowDriverData = async (towID) => {
+        const { data, error } = await supabase
+            .from('tow_driver_details')
+            .select('*')
+            .eq('user_id', towID)
+
+        setTowDriverData(data[0])
+    }
+
     const handleDrawerClose = () => {
-        if (autoOpenInProgress)
-        {
+        if (autoOpenInProgress) {
             navigate('/home')
-        }else{
+        } else {
             setSelectedData([])
             close()
         }
@@ -175,6 +186,29 @@ const History = ({ autoOpenInProgress = false }) => {
                     <Text size="sm" fw={500}>Color: <span className='font-normal'>{selectedData.vehicle_color}</span></Text>
                     <Text size="sm" fw={500}>Plate: <span className='font-normal'>{selectedData.vehicle_plate}</span></Text>
                 </Card>
+
+                {towDriverData && (selectedData.status === 'In progress' || selectedData.status === 'Completed') && (
+                    <>
+                        <Space h="lg" />
+                        <Card padding="md" radius="md" withBorder>
+                            <Group justify="space-between" mb="xs">
+                                <Text fw={700}>Tow Driver Details:</Text>
+                            </Group>
+                            <Flex align='center'>
+                                <Avatar src={towDriverData.face_photo_url} size='xl' radius="md" />
+                                <Flex direction='column' gap='xs' className='ml-2'>
+                                    <Text size="sm" fw={500}>Name: <span className='font-normal'>{towDriverData.full_name}</span></Text>
+                                    <Text size="sm" fw={500}>Phone: <span className='font-normal'>{towDriverData.phone}</span></Text>
+                                    <Text size="sm" fw={500}>Vehicle: <span className='font-normal'>{towDriverData.vehicle_model}</span></Text>
+                                    <Text size="sm" fw={500}>Plate Number: <span className='font-normal'>{towDriverData.vehicle_plate}</span></Text>
+                                </Flex>
+                            </Flex>
+                            <Divider my="md" />
+
+                            <Image src={selectedData.vehicle_image_url} fit="contain" />
+                        </Card>
+                    </>
+                )}
                 <Space h="lg" />
                 <Card padding="md" radius="md" withBorder>
                     <Stack gap='xs' className='mt-4'>
