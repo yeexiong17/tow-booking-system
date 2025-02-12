@@ -26,7 +26,7 @@ const Home = () => {
             .select('*')
             .eq('id', userData.id)
 
-        if (data[0].phone == null) {
+        if (data[0]?.phone == null) {
             setHasPhone(false)
         }
     }
