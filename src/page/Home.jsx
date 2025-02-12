@@ -15,16 +15,18 @@ const Home = () => {
 
     useEffect(() => {
         getUserDetails()
-    }, [])
+    }, [userData])
 
     const getUserDetails = async () => {
+
+        if (!userData) return
+
         const { data, error } = await supabase
             .from('profiles')
             .select('*')
             .eq('id', userData.id)
 
-        console.log(data[0])
-        if (data[0].phone == '') {
+        if (data[0].phone == null) {
             setHasPhone(false)
         }
     }
