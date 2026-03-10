@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import {
     Stack,
@@ -34,15 +34,12 @@ const TowDriverApplication = () => {
 
     const { toggle } = useAuth()
 
-    useEffect(() => {
-        getAllTow()
-    }, [])
-
-    const getAllTow = async () => {
+    const getAllTow = useCallback(async () => {
         try {
             toggle()
             const { data, error } = await supabase.from('tow_driver_details').select().eq('status', 'pending')
 
+            if (error) throw error
             setTowDriverData(data)
         } catch (error) {
 
@@ -51,7 +48,11 @@ const TowDriverApplication = () => {
         }
 
 
-    }
+    }, [toggle])
+
+    useEffect(() => {
+        getAllTow()
+    }, [getAllTow])
 
     const handleDrawerOpen = (id) => {
         const selectedTowDriver = towDriverData.find(item => item.id === id)

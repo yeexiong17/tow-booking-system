@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Badge, Button, Divider, Group, Image, Card, Drawer, Flex, ScrollArea, Space, Stack, Text } from '@mantine/core'
 import CommonLayout from '../../components/CommonLayout'
 import { Link } from 'react-router-dom'
@@ -16,19 +16,7 @@ const TowBooking = () => {
     const [selectedData, setSelectedData] = useState([])
     const [userLiveLocation, setUserLiveLocation] = useState({ latitude: 0, longitude: 0 })
 
-    useEffect(() => {
-        fetchTowBookings()
-    }, [])
-
-    useEffect(() => {
-        if (selectedData.length === 0) return
-
-        const interval = setInterval(getUserLocation, 2000)
-
-        return () => clearInterval(interval)
-    }, [selectedData])
-
-    const getUserLocation = async () => {
+    const getUserLocation = useCallback(async () => {
         const filteredData = bookings.filter(item => item.status === "In progress")
         console.log('getting user location...')
         if (filteredData.length > 0) {
@@ -37,14 +25,19 @@ const TowBooking = () => {
                 .select()
                 .eq('user_id', filteredData[0].user_id)
 
-            console.log(data[0].latitude, data[0].longitude)
+            if (error) {
+                console.error(error)
+                return
+            }
+
             if (data && data.length > 0) {
+                console.log(data[0].latitude, data[0].longitude)
                 setUserLiveLocation({ latitude: data[0].latitude, longitude: data[0].longitude })
             }
         }
-    }
+    }, [bookings])
 
-    const fetchTowBookings = async () => {
+    const fetchTowBookings = useCallback(async () => {
         try {
             const { data, error } = await supabase
                 .from('bookings')
@@ -59,7 +52,19 @@ const TowBooking = () => {
         } catch (error) {
             console.log(error)
         }
-    }
+    }, [userData.id])
+
+    useEffect(() => {
+        fetchTowBookings()
+    }, [fetchTowBookings])
+
+    useEffect(() => {
+        if (selectedData.length === 0) return
+
+        const interval = setInterval(getUserLocation, 2000)
+
+        return () => clearInterval(interval)
+    }, [selectedData, getUserLocation])
 
     const allBadge = {
         'Pending': <Badge size="sm" color="blue">Pending</Badge>,

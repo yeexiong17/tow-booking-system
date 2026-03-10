@@ -2,14 +2,12 @@ import React, { useState } from 'react'
 import CommonLayout from '../../components/CommonLayout'
 import { Button, FileInput, Space, Stack, TextInput } from '@mantine/core'
 import { useAuth } from '../../Context'
-import { useNavigate } from 'react-router-dom'
 import { supabase } from '../../supabase'
 import { notifications } from '@mantine/notifications'
 
 const NotVerified = () => {
 
     const { signOut, userData, toggle } = useAuth()
-    const navigate = useNavigate()
 
     // Add state for form inputs
     const [fullName, setFullName] = useState('')
@@ -26,7 +24,7 @@ const NotVerified = () => {
     const generateUniqueFilePath = (imageType) => {
         const shortUserId = userData.id.split("-")[0]
         const now = new Date().toLocaleString("en-GB", { timeZone: "Asia/Kuala_Lumpur", hour12: false })
-            .replace(/[\/, ]/g, "")
+            .replace(/[/, ]/g, "")
             .replace(/:/g, "")
 
         return `${shortUserId}_${now}_${imageType}`
@@ -36,7 +34,7 @@ const NotVerified = () => {
 
         let uniqueFileName = generateUniqueFilePath(imageType)
 
-        const { uploadData, uploadError } = await supabase
+        const { error: uploadError } = await supabase
             .storage
             .from('bucket')
             .upload(`tow_driver_details_image/${userData.id}/${uniqueFileName}.jpg`, image, {

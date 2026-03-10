@@ -23,7 +23,7 @@ const PhoneModal = ({ hasPhone }) => {
         if (!hasPhone) {
             open()
         }
-    }, [hasPhone])
+    }, [hasPhone, open])
 
     const handleGetOTP = async () => {
         let trimPhone = phone.trim()
@@ -70,7 +70,7 @@ const PhoneModal = ({ hasPhone }) => {
 
     const handleVerifyOTP = async () => {
         let trimPhone = phone.trim()
-        console.log(trimPhone)
+        console.log(trimPhone, otp)
 
         try {
             const { error } = await supabase

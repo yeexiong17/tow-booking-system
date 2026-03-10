@@ -38,12 +38,10 @@ const Feedback = () => {
     const [serviceRating, setServiceRating] = useState('')
     const [systemRating, setSystemRating] = useState('')
     const [comments, setComments] = useState('')
-    const [error, setError] = useState(null)
     const [isSubmitted, setIsSubmitted] = useState(false)
 
     const handleSubmit = async (e) => {
         e.preventDefault()
-        setError(null)
 
         console.log('Submitting feedback:', { userId, bookingId, serviceRating, systemRating, comments })
 
@@ -57,7 +55,7 @@ const Feedback = () => {
         }
 
         try {
-            const { data, error } = await supabase
+            const { error } = await supabase
                 .from('feedbacks')
                 .insert([
                     {

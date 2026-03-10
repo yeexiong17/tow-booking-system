@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button, PasswordInput, Space, Stack, Text } from '@mantine/core'
+import { Button, PasswordInput, Space, Stack } from '@mantine/core'
 
 import CommonLayout from '../components/CommonLayout'
 

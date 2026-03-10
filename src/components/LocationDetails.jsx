@@ -1,12 +1,11 @@
 import { useState } from "react"
-import { Button, Stack, TextInput, ActionIcon } from "@mantine/core"
+import { Stack, TextInput, ActionIcon } from "@mantine/core"
 import { notifications } from "@mantine/notifications"
 import { IconMapPin, IconLock } from "@tabler/icons-react"
 import Map from "./Map"
 
 const LocationDetails = ({ locationDetails, setLocationDetails }) => {
-    const [isStarted, setIsStarted] = useState(false)
-    const [mapVisible, setMapVisible] = useState(false)
+    const [isStarted] = useState(false)
 
     const handleCurrentLocation = (location, coordinates) => {
         navigator.geolocation.getCurrentPosition(

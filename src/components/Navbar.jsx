@@ -38,7 +38,6 @@ const NavbarLink = ({ icon: Icon, label, active, onClick, link }) => {
 
 const Navbar = () => {
     const location = useLocation()
-    const [active, setActive] = useState()
     const [desktopActive, setDesktopActive] = useState()
     const [navData, setNavData] = useState([])
     const [isAdmin, setIsAdmin] = useState(false)
@@ -76,14 +75,14 @@ const Navbar = () => {
                 { link: '/profile', label: 'Profile', icon: IconUser },
             ])
         }
-    }, [])
+    }, [auth, location.pathname])
 
     const links = navData.map((link, index) => (
         <NavbarLink
             {...link}
             key={link.label}
-            active={location.pathname == link.link}
-            onClick={() => setActive(index)}
+            active={location.pathname === link.link}
+            onClick={() => {}}
         />
     ))
 
@@ -121,7 +120,7 @@ const Navbar = () => {
                     <Link
                         to="/admin-setting"
                         className={desktopClasses.link}
-                        data-active={desktopActive == '/admin-setting' ? 'true' : undefined}
+                        data-active={desktopActive === '/admin-setting' ? 'true' : undefined}
                         onClick={(event) => {
                             setDesktopActive('/admin-setting')
                         }}
@@ -133,10 +132,14 @@ const Navbar = () => {
                         <span>Settings</span>
                     </Link>
 
-                    <a href="#" className={desktopClasses.link} onClick={(event) => { event.preventDefault(); signOut() }}>
+                    <button
+                        type="button"
+                        className={desktopClasses.link}
+                        onClick={() => { signOut() }}
+                    >
                         <IconLogout className={desktopClasses.linkIcon} stroke={1.5} />
                         <span>Logout</span>
-                    </a>
+                    </button>
                 </div>
             </nav>
     )

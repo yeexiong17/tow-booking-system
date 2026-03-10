@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 
 import { supabase, updateUserLocation } from './supabase'
@@ -29,6 +29,20 @@ function App() {
   const { auth, setAuth, setUserData, setLiveLocation } = useAuth()
   const [towDriverDetails, setTowDriverDetails] = useState(null)
 
+  const getTowDriverDetails = useCallback(async (userId) => {
+    try {
+      const { data, error: fetchError } = await supabase
+        .from('tow_driver_details')
+        .select('*')
+        .eq('user_id', userId)
+
+      if (fetchError) throw fetchError
+      setTowDriverDetails(data?.[0] ?? null)
+    } catch (err) {
+      console.log(err)
+    }
+  }, [])
+
   useEffect(() => {
     const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session) {
@@ -48,7 +62,7 @@ function App() {
     return () => {
       authListener.subscription.unsubscribe()
     }
-  }, [])
+  }, [getTowDriverDetails, setAuth, setUserData])
 
   useEffect(() => {
     let locationWatcher = null
@@ -79,20 +93,7 @@ function App() {
         navigator.geolocation.clearWatch(locationWatcher);
       }
     };
-  }, [auth]);
-
-  const getTowDriverDetails = async (userId) => {
-    try {
-      const { data, error } = await supabase
-        .from('tow_driver_details')
-        .select('*')
-        .eq('user_id', userId)
-
-      setTowDriverDetails(data[0])
-    } catch (error) {
-      console.log(error)
-    }
-  }
+  }, [auth, setLiveLocation]);
 
   return (
     <>

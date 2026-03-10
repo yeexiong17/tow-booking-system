@@ -1,9 +1,7 @@
 import React, { useState } from 'react'
 import CommonLayout from '../../components/CommonLayout'
 import { DatePickerInput } from '@mantine/dates'
-import { Button, Flex, Space, Stack, Text } from '@mantine/core'
-import { ScrollArea, Table } from '@mantine/core'
-import classes from '../../styles/ReportTable.module.css'
+import { Button, Space, Text } from '@mantine/core'
 import { supabase } from '../../supabase'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
@@ -11,7 +9,6 @@ import autoTable from 'jspdf-autotable'
 const Report = () => {
     const [startDate, setStartDate] = useState(null)
     const [endDate, setEndDate] = useState(null)
-    const [bookings, setBookings] = useState([])
     const [error, setError] = useState(null)
     const [success, setSuccess] = useState(false)
 
@@ -66,16 +63,6 @@ const Report = () => {
             setError('Error generating report: ' + error.message)
         }
     }
-
-    const rows = bookings.map((row) => (
-        <Table.Tr key={row.name}>
-            <Table.Td>{row.id}</Table.Td>
-            <Table.Td>{row.date}</Table.Td>
-            <Table.Td>
-                <Button onClick={handleGenerateReport}>Generate Report</Button>
-            </Table.Td>
-        </Table.Tr>
-    ))
 
     return (
         <CommonLayout>

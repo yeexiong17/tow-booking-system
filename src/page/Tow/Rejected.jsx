@@ -1,13 +1,11 @@
-import { useState, useEffect } from 'react'
+import React from 'react'
 import CommonLayout from '../../components/CommonLayout'
-import { useNavigate } from 'react-router-dom'
-import { Paper, Title, Text, Button, Container, Alert, Space } from '@mantine/core'
+import { Paper, Title, Text, Button, Alert, Space } from '@mantine/core'
 import { IconAlertCircle } from '@tabler/icons-react'
 import { useAuth } from '../../Context'
 import { supabase } from '../../supabase'
 
 const Rejected = ({ towDriverDetails }) => {
-    const navigate = useNavigate()
     const { signOut, toggle } = useAuth()
 
     const handleResubmit = async () => {

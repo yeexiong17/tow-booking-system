@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Badge, Card, Drawer, Flex, Group, Image, ScrollArea, Space, Stack, Text, Button, Avatar, Divider } from '@mantine/core'
 import CommonLayout from '../../components/CommonLayout'
 import { Link } from 'react-router-dom'
@@ -28,19 +28,7 @@ const History = ({ autoOpenInProgress = false }) => {
         "Unpaid": <Badge size='sm' color="orange">Unpaid</Badge>,
     }
 
-    useEffect(() => {
-        fetchBookingData()
-    }, [])
-
-    useEffect(() => {
-        if (selectedData.length === 0) return
-
-        const interval = setInterval(getTowLocation, 2000)
-
-        return () => clearInterval(interval)
-    }, [selectedData])
-
-    const getTowLocation = async () => {
+    const getTowLocation = useCallback(async () => {
         const filteredData = bookingData.filter(item => item.status === "In progress")
         if (filteredData.length !== 0) {
             console.log('getting tow location...')
@@ -49,14 +37,33 @@ const History = ({ autoOpenInProgress = false }) => {
                 .select()
                 .eq('user_id', filteredData[0].tow_id)
 
-            console.log(data[0].latitude, data[0].longitude)
+            if (error) {
+                console.error(error)
+                return
+            }
+
             if (data && data.length > 0) {
+                console.log(data[0].latitude, data[0].longitude)
                 setTowLiveLocation({ latitude: data[0].latitude, longitude: data[0].longitude })
             }
         }
-    }
+    }, [bookingData])
 
-    const fetchBookingData = async () => {
+    const getTowDriverData = useCallback(async (towID) => {
+        const { data, error } = await supabase
+            .from('tow_driver_details')
+            .select('*')
+            .eq('user_id', towID)
+
+        if (error) {
+            console.error(error)
+            return
+        }
+
+        setTowDriverData(data[0])
+    }, [])
+
+    const fetchBookingData = useCallback(async () => {
         try {
             const { data, error } = await supabase
                 .from('bookings')
@@ -86,7 +93,19 @@ const History = ({ autoOpenInProgress = false }) => {
         } catch (error) {
             console.log(error)
         }
-    }
+    }, [userData.id, autoOpenInProgress, getTowDriverData, open])
+
+    useEffect(() => {
+        fetchBookingData()
+    }, [fetchBookingData])
+
+    useEffect(() => {
+        if (selectedData.length === 0) return
+
+        const interval = setInterval(getTowLocation, 2000)
+
+        return () => clearInterval(interval)
+    }, [selectedData, getTowLocation])
 
     const handleDrawerOpen = (index) => {
         const data = bookingData[index]
@@ -94,15 +113,6 @@ const History = ({ autoOpenInProgress = false }) => {
         setSelectedData(data)
         getTowDriverData(data.tow_id)
         open()
-    }
-
-    const getTowDriverData = async (towID) => {
-        const { data, error } = await supabase
-            .from('tow_driver_details')
-            .select('*')
-            .eq('user_id', towID)
-
-        setTowDriverData(data[0])
     }
 
     const handleDrawerClose = () => {
@@ -242,7 +252,7 @@ const History = ({ autoOpenInProgress = false }) => {
                         </Stack>
 
                         {
-                            selectedData.status == 'In progress' && (
+                            selectedData.status === 'In progress' && (
                                 <Map bookingLocation={[selectedData.from_coordinates, towLiveLocation]} center={liveLocation} />
                             )
                         }

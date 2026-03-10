@@ -94,10 +94,20 @@ const ManageAdmin = () => {
         toggle()
         getAllAdmin()
         toggle()
-    }, [])
+    }, [toggle])
 
     const getAllAdmin = async () => {
         const { data, error } = await supabase.from('profiles').select().eq('role', 'admin')
+        if (error) {
+            notifications.show({
+                title: 'Failed To Fetch Admins',
+                message: error.message,
+                className: 'w-5/6 ml-auto',
+                position: 'top-right',
+                color: 'red'
+            })
+            return
+        }
         setAdminData(data)
         setSortedData(data)
     }
@@ -132,7 +142,7 @@ const ManageAdmin = () => {
         let trimName = name.trim()
 
         toggle()
-        const { data, error } = await adminSupabase.auth.admin.createUser({
+        const { error } = await adminSupabase.auth.admin.createUser({
             email: trimEmail,
             password: trimPassword,
             email_confirm: true,

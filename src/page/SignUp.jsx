@@ -35,7 +35,7 @@ const SignUp = () => {
                     name: trimName,
                     role: role,
                     email: trimEmail,
-                    status: role == 'tow' ? 'unactive' : 'active'
+                    status: role === 'tow' ? 'unactive' : 'active'
                 }
             }
         })

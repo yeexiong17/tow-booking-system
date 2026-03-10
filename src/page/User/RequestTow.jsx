@@ -58,6 +58,11 @@ const RequestTow = () => {
                 .eq('status', 'Pending')
                 .maybeSingle();
 
+            if (error && error.code !== 'PGRST116') {
+                console.error(error);
+                return;
+            }
+
             if (data) {
                 setBookingId(data.id);
                 setBookingStatus(data.status);
@@ -142,7 +147,7 @@ const RequestTow = () => {
             (!fromLocation.trim()) ||
             (!toLocation.trim()))
 
-        if ((isVehicleDetailsIncomplete && nextStep === 1) || (isLocationDetailsIncomplete && nextStep === 2) || (paymentMethod.length == 0 && nextStep === 3)) {
+        if ((isVehicleDetailsIncomplete && nextStep === 1) || (isLocationDetailsIncomplete && nextStep === 2) || (paymentMethod.length === 0 && nextStep === 3)) {
             notifications.show({
                 title: 'Step Error',
                 message: 'Please fill in all the fields',
@@ -162,7 +167,7 @@ const RequestTow = () => {
     const generateUniqueFilePath = () => {
         const shortUserId = userData.id.split("-")[0]
         const now = new Date().toLocaleString("en-GB", { timeZone: "Asia/Kuala_Lumpur", hour12: false })
-            .replace(/[\/, ]/g, "")
+            .replace(/[/, ]/g, "")
             .replace(/:/g, "")
 
         return `${shortUserId}_${now}`
@@ -172,7 +177,7 @@ const RequestTow = () => {
 
         let uniqueFileName = generateUniqueFilePath()
 
-        const { uploadData, uploadError } = await supabase
+        const { error: uploadError } = await supabase
             .storage
             .from('bucket')
             .upload(`booking_vehicle_image/${uniqueFileName}.jpg`, vehicleDetails.vehicleImage, {
@@ -252,7 +257,7 @@ const RequestTow = () => {
             toggle()
             const car_photo_url = await uploadImageToSupabase()
 
-            const { data, error } = await supabase
+            const { error } = await supabase
                 .from('bookings')
                 .insert({
                     user_id: userData.id,

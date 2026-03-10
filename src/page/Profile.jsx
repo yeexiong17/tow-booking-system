@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { Button, Card, Drawer, Group, Image, Space, Text } from "@mantine/core"
 import CommonLayout from "../components/CommonLayout"
 import { useDisclosure } from "@mantine/hooks"
@@ -13,12 +13,7 @@ const Profile = () => {
     const [profileData, setProfileData] = useState(null)
     const navigate = useNavigate()
 
-    useEffect(() => {
-        open()
-        fetchProfileData()
-    }, [userData])
-
-    const fetchProfileData = async () => {
+    const fetchProfileData = useCallback(async () => {
         try {
             const { data, error } = await supabase
                 .from('profiles')
@@ -32,7 +27,12 @@ const Profile = () => {
         } catch (error) {
             console.error('Error fetching profile:', error)
         }
-    }
+    }, [userData.id])
+
+    useEffect(() => {
+        open()
+        fetchProfileData()
+    }, [open, fetchProfileData])
 
     const handleClose = () => {
         close()

@@ -9,27 +9,26 @@ import Booking2 from '../images/booking-2.jpg'
 import { supabase } from '../supabase'
 
 const Home = () => {
-    const { signOut, userData } = useAuth()
+    const { userData } = useAuth()
     const [hasPhone, setHasPhone] = useState(true)
     const navigate = useNavigate()
 
     useEffect(() => {
+        const getUserDetails = async () => {
+            if (!userData) return
+
+            const { data } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', userData.id)
+
+            if (data[0]?.phone == null) {
+                setHasPhone(false)
+            }
+        }
+
         getUserDetails()
     }, [userData])
-
-    const getUserDetails = async () => {
-
-        if (!userData) return
-
-        const { data, error } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', userData.id)
-
-        if (data[0]?.phone == null) {
-            setHasPhone(false)
-        }
-    }
 
     return (
         <CommonLayout>

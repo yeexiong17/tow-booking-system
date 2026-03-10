@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
-import { IconPencil, IconTrash } from '@tabler/icons-react';
-import { ActionIcon, Anchor, Avatar, Badge, Button, Card, Drawer, Flex, Group, Image, ScrollArea, Space, Stack, Table, Text, Select } from '@mantine/core';
+import { Anchor, Avatar, Button, Card, Drawer, Flex, Group, Image, ScrollArea, Space, Stack, Table, Text, Select } from '@mantine/core';
 import CommonLayout from '../../components/CommonLayout';
 import { useDisclosure } from '@mantine/hooks';
 import { supabase } from '../../supabase';
